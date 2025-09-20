@@ -34,16 +34,16 @@ export const Header = () => {
   return (
     <motion.header
       className={cn(
-        "header-sticky transition-all duration-300",
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
         isScrolled 
-          ? "backdrop-blur bg-white/80 border-b border-neutral-200" 
-          : "bg-transparent border-b border-transparent"
+          ? "bg-background/90 backdrop-blur-lg border-b border-border shadow-soft" 
+          : "bg-transparent"
       )}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
     >
-      <div className="container-modern py-4">
+      <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <motion.div 
             className="flex items-center gap-3"
@@ -99,9 +99,9 @@ export const Header = () => {
           >
             <Button 
               onClick={() => scrollToSection("#share")}
-              className="btn-primary hover-lift"
+              className="btn-hero"
             >
-              <Sparkles className="mr-2 h-5 w-5" />
+              <Sparkles className="mr-2 h-4 w-4" />
               Share Your Wish
             </Button>
           </motion.div>
@@ -133,9 +133,9 @@ export const Header = () => {
                   scrollToSection("#share");
                   setIsMobileMenuOpen(false);
                 }}
-                className="btn-primary mt-2 w-full"
+                className="btn-hero mt-2"
               >
-                <Sparkles className="mr-2 h-5 w-5" />
+                <Sparkles className="mr-2 h-4 w-4" />
                 Share Your Wish
               </Button>
             </div>
