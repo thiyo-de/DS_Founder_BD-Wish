@@ -152,19 +152,20 @@ export const ShareWish = () => {
   };
 
   return (
-    <section id="share" className="py-20 bg-background">
-      <div className="container mx-auto px-6">
+    <section className="py-16 lg:py-24 bg-white">
+      <div className="container-modern">
         <motion.div
           className="text-center mb-16"
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          viewport={{ once: true, amount: 0.2 }}
         >
-          <h2 className="text-4xl md:text-5xl font-outfit font-bold mb-6 text-primary">
+          <h2 className="text-2xl sm:text-3xl font-outfit font-semibold text-[#0F0EB4] mb-3">
             Share Your Birthday Wish
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <span className="section-divider" />
+          <p className="text-xl text-body max-w-3xl mx-auto mt-6">
             Send your heartfelt message through video, photo, voice recording, or text. 
             Your wishes will be reviewed and featured on our celebration wall.
           </p>
@@ -172,61 +173,63 @@ export const ShareWish = () => {
 
         <motion.div
           className="max-w-4xl mx-auto"
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          viewport={{ once: true }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+          viewport={{ once: true, amount: 0.2 }}
         >
-          <Card className="shadow-card">
-            <CardHeader>
-              <CardTitle className="text-2xl font-outfit text-center">
+          <div className="card-modern shadow-card">
+            <div className="p-8">
+              <h3 className="text-xl font-outfit font-semibold text-center mb-8 text-[#0F0EB4]">
                 Choose Your Wish Format
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+              </h3>
               <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid w-full grid-cols-4 mb-8">
-                  <TabsTrigger value="video" className="flex items-center gap-2">
-                    <Video className="h-4 w-4" />
+                <TabsList className="grid w-full grid-cols-4 mb-8 bg-neutral-50">
+                  <TabsTrigger value="video" className="tab-modern">
+                    <Video className="h-5 w-5 mr-2" />
                     Video
                   </TabsTrigger>
-                  <TabsTrigger value="photo" className="flex items-center gap-2">
-                    <Image className="h-4 w-4" />
+                  <TabsTrigger value="photo" className="tab-modern">
+                    <Image className="h-5 w-5 mr-2" />
                     Photo/Post
                   </TabsTrigger>
-                  <TabsTrigger value="voice" className="flex items-center gap-2">
-                    <Music className="h-4 w-4" />
+                  <TabsTrigger value="voice" className="tab-modern">
+                    <Music className="h-5 w-5 mr-2" />
                     Voice
                   </TabsTrigger>
-                  <TabsTrigger value="text" className="flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4" />
+                  <TabsTrigger value="text" className="tab-modern">
+                    <MessageSquare className="h-5 w-5 mr-2" />
                     Text
                   </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="video" className="space-y-6">
-                  <div className="bg-surface rounded-lg p-4">
-                    <h3 className="font-semibold mb-2">📹 Video Message</h3>
-                    <p className="text-sm text-muted-foreground mb-3">
+                  <div className="bg-neutral-50 rounded-xl p-6">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Video className="h-5 w-5 text-[#0F0EB4]" />
+                      <h4 className="font-outfit font-semibold text-lg text-[#0F0EB4]">Video Message</h4>
+                    </div>
+                    <p className="text-sm text-body mb-4">
                       Share a YouTube, Vimeo, Instagram, or Facebook video link
                     </p>
                     <div className="space-y-4">
                       <div>
-                        <Label htmlFor="video-url">Video URL *</Label>
+                        <Label htmlFor="video-url" className="text-sm font-medium text-neutral-700">Video URL *</Label>
                         <Input
                           id="video-url"
                           placeholder="https://www.youtube.com/watch?v=..."
                           value={formData.url}
                           onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
+                          className="input-modern mt-1"
                         />
                         {formData.url && (
-                          <div className="mt-2">
+                          <div className="mt-3">
                             {(() => {
                               const info = getPreviewInfo(formData.url);
                               return (
-                                <Badge className={info.color}>
+                                <div className="provider-chip inline-flex items-center gap-1">
                                   {info.icon} {info.provider} detected
-                                </Badge>
+                                </div>
                               );
                             })()}
                           </div>
@@ -401,21 +404,21 @@ export const ShareWish = () => {
                   <Button
                     onClick={() => handleSubmit(activeTab)}
                     disabled={isSubmitting || !formData.name || !formData.consent}
-                    className="btn-hero w-full"
+                    className="btn-primary w-full text-lg hover-lift"
                   >
                     {isSubmitting ? (
                       "Submitting..."
                     ) : (
                       <>
-                        <Send className="mr-2 h-4 w-4" />
+                        <Send className="mr-2 h-5 w-5" />
                         Submit Your Wish
                       </>
                     )}
                   </Button>
                 </div>
               </Tabs>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </motion.div>
       </div>
     </section>

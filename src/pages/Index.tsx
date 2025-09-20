@@ -7,6 +7,7 @@ import { WishesWall } from "@/components/WishesWall";
 import { Highlights } from "@/components/Highlights";
 import { Awards } from "@/components/Awards";
 import { Footer } from "@/components/Footer";
+import { MobileFAB } from "@/components/MobileFAB";
 
 const Index = () => {
   return (
@@ -31,6 +32,8 @@ const Index = () => {
       </main>
       
       <Footer />
+      
+      <MobileFAB />
     </div>
   );
 };

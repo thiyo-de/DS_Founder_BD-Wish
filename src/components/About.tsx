@@ -67,19 +67,20 @@ const values = [
 
 export const About = () => {
   return (
-    <section id="about" className="py-20 bg-surface">
-      <div className="container mx-auto px-6">
+    <section id="about" className="py-16 lg:py-24 bg-neutral-50">
+      <div className="container-modern">
         <motion.div
           className="text-center mb-16"
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          viewport={{ once: true, amount: 0.2 }}
         >
-          <h2 className="text-4xl md:text-5xl font-outfit font-bold mb-6 text-primary">
+          <h2 className="text-2xl sm:text-3xl font-outfit font-semibold text-[#0F0EB4] mb-3">
             About Our Founder
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+          <span className="section-divider" />
+          <p className="text-xl text-body max-w-3xl mx-auto mt-6">
             A remarkable journey of innovation, leadership, and dedication to creating 
             meaningful change in the world. From humble beginnings to transformative achievements, 
             our founder's story continues to inspire and guide us forward.
@@ -89,19 +90,22 @@ export const About = () => {
         {/* Timeline */}
         <motion.div
           className="mb-20"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 1 }}
-          viewport={{ once: true }}
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          viewport={{ once: true, amount: 0.2 }}
         >
-          <h3 className="text-2xl font-outfit font-semibold text-center mb-12 flex items-center justify-center gap-2">
-            <Calendar className="h-6 w-6 text-primary" />
-            Milestones & Journey
-          </h3>
+          <div className="text-center mb-12">
+            <h3 className="text-2xl sm:text-3xl font-outfit font-semibold text-[#0F0EB4] flex items-center justify-center gap-2">
+              <Calendar className="h-6 w-6" />
+              Milestones & Journey
+            </h3>
+            <span className="section-divider" />
+          </div>
           
-          <div className="relative">
+          <div className="relative max-w-4xl mx-auto">
             {/* Timeline line */}
-            <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gradient-accent opacity-30"></div>
+            <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-gradient-to-b from-[#FEF200] to-[#0F0EB4] opacity-30"></div>
             
             <div className="space-y-12">
               {milestones.map((milestone, index) => (
@@ -112,29 +116,26 @@ export const About = () => {
                   }`}
                   initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
                   whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  whileHover={{ y: -2 }}
                 >
                   <div className="flex-1 px-8">
-                    <Card className="wish-card">
-                      <CardContent className="p-6">
-                        <div className="flex items-center gap-3 mb-3">
-                          <Badge variant="secondary" className="bg-primary text-primary-foreground">
-                            {milestone.year}
-                          </Badge>
-                          <span className="text-2xl">{milestone.image}</span>
-                        </div>
-                        <h4 className="font-outfit font-semibold text-lg mb-2">
-                          {milestone.title}
-                        </h4>
-                        <p className="text-muted-foreground">
-                          {milestone.description}
-                        </p>
-                      </CardContent>
-                    </Card>
+                    <div className="milestone-card">
+                      <div className="flex items-center gap-3 mb-3">
+                        <span className="year-chip">{milestone.year}</span>
+                        <span className="text-2xl">{milestone.image}</span>
+                      </div>
+                      <h4 className="font-outfit font-semibold text-lg mb-2 text-[#0F0EB4]">
+                        {milestone.title}
+                      </h4>
+                      <p className="text-body">
+                        {milestone.description}
+                      </p>
+                    </div>
                   </div>
                   
-                  <div className="w-4 h-4 bg-accent rounded-full border-4 border-background shadow-soft z-10"></div>
+                  <div className="w-3 h-3 bg-[#FEF200] rounded-full border-2 border-white shadow-sm z-10"></div>
                   <div className="flex-1"></div>
                 </motion.div>
               ))}
@@ -144,38 +145,40 @@ export const About = () => {
 
         {/* Values */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          viewport={{ once: true, amount: 0.2 }}
         >
-          <h3 className="text-2xl font-outfit font-semibold text-center mb-12 flex items-center justify-center gap-2">
-            <Users className="h-6 w-6 text-primary" />
-            Core Values & Impact
-          </h3>
+          <div className="text-center mb-12">
+            <h3 className="text-2xl sm:text-3xl font-outfit font-semibold text-[#0F0EB4] flex items-center justify-center gap-2">
+              <Users className="h-6 w-6" />
+              Core Values & Impact
+            </h3>
+            <span className="section-divider" />
+          </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {values.map((value, index) => (
               <motion.div
                 key={value.title}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 12 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                viewport={{ once: true, amount: 0.2 }}
+                whileHover={{ y: -2 }}
               >
-                <Card className="wish-card text-center h-full">
-                  <CardContent className="p-6">
-                    <div className="text-primary mb-4 flex justify-center">
-                      {value.icon}
-                    </div>
-                    <h4 className="font-outfit font-semibold text-lg mb-3">
-                      {value.title}
-                    </h4>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      {value.description}
-                    </p>
-                  </CardContent>
-                </Card>
+                <div className="stat-card h-full">
+                  <div className="text-[#0F0EB4] mb-4 flex justify-center">
+                    {value.icon}
+                  </div>
+                  <h4 className="font-outfit font-semibold text-lg mb-3 text-[#0F0EB4]">
+                    {value.title}
+                  </h4>
+                  <p className="text-body text-sm leading-relaxed">
+                    {value.description}
+                  </p>
+                </div>
               </motion.div>
             ))}
           </div>

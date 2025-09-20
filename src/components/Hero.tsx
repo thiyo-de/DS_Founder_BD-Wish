@@ -15,7 +15,7 @@ export const Hero = () => {
   const daysUntilBirthday = Math.ceil((birthdayDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-diagonal">
       {/* Background particles */}
       <div className="absolute inset-0">
         {[...Array(20)].map((_, i) => (
@@ -41,7 +41,7 @@ export const Hero = () => {
         ))}
       </div>
 
-      <div className="container mx-auto px-6 py-20 relative z-10">
+      <div className="container-modern py-20 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
             className="mb-12"
@@ -50,10 +50,10 @@ export const Hero = () => {
             transition={{ duration: 1, ease: "easeOut" }}
           >
             <div className="relative inline-block">
-              <div className="w-40 h-40 mx-auto mb-8 relative">
+              <div className="w-48 h-48 mx-auto mb-8 relative">
                 <div className="absolute inset-0 bg-gradient-accent rounded-full opacity-20 animate-pulse"></div>
-                <div className="w-full h-full bg-gradient-hero rounded-full flex items-center justify-center border-4 border-accent/30">
-                  <Cake className="text-6xl text-primary-foreground h-16 w-16" />
+                <div className="w-full h-full bg-gradient-hero portrait-ring flex items-center justify-center">
+                  <Cake className="text-primary-foreground h-20 w-20" />
                 </div>
                 <motion.div
                   className="absolute -top-2 -right-2"
@@ -72,10 +72,10 @@ export const Hero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
           >
-            <h1 className="text-5xl md:text-7xl font-outfit font-bold mb-6 gradient-hero bg-clip-text text-transparent">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-outfit font-semibold tracking-tight mb-6 text-[#0F0EB4]">
               Celebrating a Visionary Leader
             </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl md:text-2xl text-body max-w-3xl mx-auto">
               Join us in honoring an extraordinary founder whose vision, dedication, and leadership 
               have inspired countless lives and transformed our organization into what it is today.
             </p>
@@ -87,8 +87,9 @@ export const Hero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
           >
-            <Card className="inline-flex items-center gap-3 p-4 bg-accent/10 border-accent/30">
-              <Calendar className="h-5 w-5 text-accent" />
+            <div className="flex flex-col sm:flex-row items-center gap-4 justify-center mb-6">
+              <Card className="inline-flex items-center gap-3 p-4 bg-[#FEF200]/10 border-[#FEF200]/30 rounded-xl">
+                <Calendar className="h-5 w-5 text-[#0F0EB4]" />
               <span className="font-outfit font-semibold text-lg">
                 {daysUntilBirthday > 0 ? (
                   <>
@@ -106,8 +107,19 @@ export const Hero = () => {
                     Celebrating our founder
                   </>
                 )}
-              </span>
-            </Card>
+                </span>
+              </Card>
+              
+              {/* Social Proof Chips */}
+              <div className="flex flex-wrap gap-2 justify-center">
+                <div className="px-3 py-1.5 bg-white/70 backdrop-blur rounded-full border border-neutral-200 text-sm text-neutral-700">
+                  ✨ 4,000+ wishes submitted
+                </div>
+                <div className="px-3 py-1.5 bg-white/70 backdrop-blur rounded-full border border-neutral-200 text-sm text-neutral-700">
+                  🌍 Global celebration
+                </div>
+              </div>
+            </div>
           </motion.div>
 
           <motion.div
@@ -118,7 +130,7 @@ export const Hero = () => {
           >
             <Button
               onClick={() => scrollToSection("#share")}
-              className="btn-hero text-lg px-10 py-4"
+              className="btn-primary text-lg px-10 py-4 hover-lift"
             >
               Share Your Wish
               <Sparkles className="ml-2 h-5 w-5" />
@@ -126,7 +138,7 @@ export const Hero = () => {
             
             <Button
               onClick={() => scrollToSection("#highlights")}
-              className="btn-hero-outline text-lg px-10 py-4"
+              className="btn-secondary text-lg px-10 py-4 hover-lift"
             >
               <Play className="mr-2 h-5 w-5" />
               Watch Highlights

@@ -202,19 +202,20 @@ export const WishesWall = () => {
   };
 
   return (
-    <section id="wishes" className="py-20 bg-surface">
-      <div className="container mx-auto px-6">
+    <section id="wishes" className="py-16 lg:py-24 bg-neutral-50">
+      <div className="container-modern">
         <motion.div
           className="text-center mb-16"
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          viewport={{ once: true, amount: 0.2 }}
         >
-          <h2 className="text-4xl md:text-5xl font-outfit font-bold mb-6 text-primary">
+          <h2 className="text-2xl sm:text-3xl font-outfit font-semibold text-[#0F0EB4] mb-3">
             Birthday Wishes Wall
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <span className="section-divider" />
+          <p className="text-xl text-body max-w-3xl mx-auto mt-6">
             Heartfelt messages, videos, photos, and voice notes from colleagues, 
             friends, and admirers celebrating our founder's special day.
           </p>
@@ -222,37 +223,37 @@ export const WishesWall = () => {
 
         {/* Filters and Search */}
         <motion.div
-          className="mb-12"
-          initial={{ opacity: 0, y: 20 }}
+          className="filter-bar-sticky mb-12 py-4"
+          initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          viewport={{ once: true }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+          viewport={{ once: true, amount: 0.2 }}
         >
-          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between mb-6">
+          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-neutral-500" />
               <Input
                 placeholder="Search wishes by name, message, or organization..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="input-modern pl-10"
               />
             </div>
             
             <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium text-muted-foreground">Filter:</span>
+              <Filter className="h-5 w-5 text-neutral-500" />
+              <span className="text-sm font-medium text-neutral-700">Filter:</span>
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 mt-4">
             {filters.map((filter) => (
               <Button
                 key={filter}
                 variant={activeFilter === filter ? "default" : "outline"}
                 size="sm"
                 onClick={() => setActiveFilter(filter)}
-                className={activeFilter === filter ? "bg-primary text-primary-foreground" : ""}
+                className={activeFilter === filter ? "bg-[#0F0EB4] text-white" : "btn-secondary text-sm"}
               >
                 {filter}
               </Button>
@@ -279,18 +280,19 @@ export const WishesWall = () => {
         {!isLoading && (
           <motion.div
             className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            viewport={{ once: true }}
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
+            viewport={{ once: true, amount: 0.2 }}
           >
             {filteredWishes.map((wish, index) => (
               <motion.div
                 key={wish.id}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 12 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: index * 0.05, ease: [0.16, 1, 0.3, 1] }}
+                viewport={{ once: true, amount: 0.2 }}
+                whileHover={{ y: -2 }}
               >
                 <WishCard wish={wish} />
               </motion.div>
