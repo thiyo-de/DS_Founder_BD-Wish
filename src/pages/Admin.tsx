@@ -1,0 +1,268 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CheckCircle, XCircle, Search, Video, Image, Music, MessageSquare, Calendar } from "lucide-react";
+
+// Mock data for demonstration
+const mockSubmissions = [
+  {
+    id: "1",
+    type: "video",
+    name: "John Doe",
+    message: "Happy birthday! Here's a special video message",
+    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    provider: "youtube",
+    status: "pending",
+    createdAt: new Date("2024-01-15"),
+    org: "Tech Corp"
+  },
+  {
+    id: "2",
+    type: "text",
+    name: "Jane Smith",
+    message: "Wishing you all the best on your special day! Your leadership has been inspiring.",
+    status: "approved",
+    createdAt: new Date("2024-01-14"),
+    city: "New York"
+  },
+  {
+    id: "3",
+    type: "voice",
+    name: "Mike Johnson",
+    message: "Voice message with heartfelt wishes",
+    url: "https://soundcloud.com/example/birthday-wish",
+    provider: "soundcloud",
+    status: "pending",
+    createdAt: new Date("2024-01-13")
+  }
+];
+
+const Admin = () => {
+  const [submissions, setSubmissions] = useState(mockSubmissions);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedTab, setSelectedTab] = useState("dashboard");
+
+  const handleStatusUpdate = (id: string, newStatus: "approved" | "rejected") => {
+    setSubmissions(prev => 
+      prev.map(sub => sub.id === id ? { ...sub, status: newStatus } : sub)
+    );
+  };
+
+  const filteredSubmissions = submissions.filter(sub =>
+    sub.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    sub.type.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case "video": return <Video className="h-4 w-4" />;
+      case "photo": 
+      case "post": return <Image className="h-4 w-4" />;
+      case "voice": return <Music className="h-4 w-4" />;
+      case "text": return <MessageSquare className="h-4 w-4" />;
+      default: return null;
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "approved":
+        return <Badge variant="secondary" className="bg-green-100 text-green-800">Approved</Badge>;
+      case "rejected":
+        return <Badge variant="destructive">Rejected</Badge>;
+      case "pending":
+      default:
+        return <Badge variant="outline" className="text-amber-600 border-amber-600">Pending</Badge>;
+    }
+  };
+
+  const stats = {
+    pending: submissions.filter(s => s.status === "pending").length,
+    approved: submissions.filter(s => s.status === "approved").length,
+    rejected: submissions.filter(s => s.status === "rejected").length,
+    total: submissions.length
+  };
+
+  return (
+    <div className="min-h-screen bg-surface p-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-outfit font-bold text-primary mb-2">
+            Admin Dashboard
+          </h1>
+          <p className="text-muted-foreground">
+            Moderate birthday wishes and manage submissions
+          </p>
+        </div>
+
+        <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+            <TabsTrigger value="submissions">All Submissions</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="dashboard" className="space-y-6">
+            <div className="grid gap-4 md:grid-cols-4">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Submissions</CardTitle>
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stats.total}</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Pending Review</CardTitle>
+                  <Badge variant="outline" className="text-amber-600 border-amber-600">
+                    {stats.pending}
+                  </Badge>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-amber-600">{stats.pending}</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Approved</CardTitle>
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-green-600">{stats.approved}</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Rejected</CardTitle>
+                  <XCircle className="h-4 w-4 text-destructive" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-destructive">{stats.rejected}</div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Submissions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {submissions.slice(0, 5).map((submission) => (
+                    <div key={submission.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        {getTypeIcon(submission.type)}
+                        <div>
+                          <p className="font-medium">{submission.name}</p>
+                          <p className="text-sm text-muted-foreground capitalize">{submission.type}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {getStatusBadge(submission.status)}
+                        <span className="text-sm text-muted-foreground">
+                          {submission.createdAt.toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="submissions" className="space-y-6">
+            <div className="flex items-center gap-4">
+              <div className="relative flex-1 max-w-sm">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by name or type..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-4">
+              {filteredSubmissions.map((submission) => (
+                <Card key={submission.id}>
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-4 flex-1">
+                        {getTypeIcon(submission.type)}
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h3 className="font-semibold">{submission.name}</h3>
+                            {getStatusBadge(submission.status)}
+                            <span className="text-sm text-muted-foreground capitalize">
+                              {submission.type}
+                            </span>
+                          </div>
+                          
+                          {submission.message && (
+                            <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
+                              {submission.message}
+                            </p>
+                          )}
+                          
+                          {submission.url && (
+                            <p className="text-xs text-muted-foreground mb-2 font-mono truncate">
+                              {submission.url}
+                            </p>
+                          )}
+                          
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                            <span>{submission.createdAt.toLocaleDateString()}</span>
+                            {submission.org && <span>• {submission.org}</span>}
+                            {submission.city && <span>• {submission.city}</span>}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {submission.status === "pending" && (
+                        <div className="flex gap-2 ml-4">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleStatusUpdate(submission.id, "approved")}
+                            className="text-green-600 border-green-600 hover:bg-green-50"
+                          >
+                            <CheckCircle className="h-4 w-4 mr-1" />
+                            Approve
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleStatusUpdate(submission.id, "rejected")}
+                            className="text-destructive border-destructive hover:bg-destructive/10"
+                          >
+                            <XCircle className="h-4 w-4 mr-1" />
+                            Reject
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {filteredSubmissions.length === 0 && (
+              <Card>
+                <CardContent className="p-12 text-center">
+                  <p className="text-muted-foreground">No submissions found</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+};
+
+export default Admin;
