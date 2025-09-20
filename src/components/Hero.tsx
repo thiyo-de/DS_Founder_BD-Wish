@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Calendar, Play, Sparkles } from "lucide-react";
+import { Calendar, Play, Sparkles, PartyPopper, Cake } from "lucide-react";
 
 export const Hero = () => {
   const scrollToSection = (href: string) => {
@@ -53,9 +53,7 @@ export const Hero = () => {
               <div className="w-40 h-40 mx-auto mb-8 relative">
                 <div className="absolute inset-0 bg-gradient-accent rounded-full opacity-20 animate-pulse"></div>
                 <div className="w-full h-full bg-gradient-hero rounded-full flex items-center justify-center border-4 border-accent/30">
-                  <span className="text-6xl font-outfit font-bold text-primary-foreground">
-                    F
-                  </span>
+                  <Cake className="text-6xl text-primary-foreground h-16 w-16" />
                 </div>
                 <motion.div
                   className="absolute -top-2 -right-2"
@@ -93,11 +91,20 @@ export const Hero = () => {
               <Calendar className="h-5 w-5 text-accent" />
               <span className="font-outfit font-semibold text-lg">
                 {daysUntilBirthday > 0 ? (
-                  <>🎂 {daysUntilBirthday} days until the celebration</>
+                  <>
+                    <Cake className="inline h-5 w-5 mr-2" />
+                    {daysUntilBirthday} days until the celebration
+                  </>
                 ) : daysUntilBirthday === 0 ? (
-                  <>🎉 Today is the big day!</>
+                  <>
+                    <PartyPopper className="inline h-5 w-5 mr-2" />
+                    Today is the big day!
+                  </>
                 ) : (
-                  <>🎊 Celebrating our founder</>
+                  <>
+                    <Sparkles className="inline h-5 w-5 mr-2" />
+                    Celebrating our founder
+                  </>
                 )}
               </span>
             </Card>

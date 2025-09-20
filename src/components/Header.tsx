@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Menu, X, Gift, Sparkles } from "lucide-react";
 
 const navigationItems = [
   { name: "About", href: "#about" },
@@ -14,6 +15,7 @@ const navigationItems = [
 
 export const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -48,7 +50,7 @@ export const Header = () => {
             whileHover={{ scale: 1.02 }}
           >
             <div className="w-10 h-10 bg-gradient-hero rounded-full flex items-center justify-center">
-              <span className="text-primary-foreground font-outfit font-bold text-lg">F</span>
+              <Gift className="text-primary-foreground h-5 w-5" />
             </div>
             <div>
               <h1 className="font-outfit font-bold text-xl text-foreground">
@@ -74,7 +76,23 @@ export const Header = () => {
             ))}
           </nav>
 
+          {/* Mobile Menu Button */}
+          <div className="lg:hidden">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
+            </Button>
+          </div>
+
           <motion.div
+            className="hidden lg:block"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.6 }}
@@ -83,10 +101,46 @@ export const Header = () => {
               onClick={() => scrollToSection("#share")}
               className="btn-hero"
             >
+              <Sparkles className="mr-2 h-4 w-4" />
               Share Your Wish
             </Button>
           </motion.div>
         </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <motion.nav
+            className="lg:hidden mt-4 pt-4 border-t border-border"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+          >
+            <div className="flex flex-col gap-4">
+              {navigationItems.map((item) => (
+                <button
+                  key={item.name}
+                  onClick={() => {
+                    scrollToSection(item.href);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="text-left text-foreground hover:text-primary transition-colors font-medium py-2"
+                >
+                  {item.name}
+                </button>
+              ))}
+              <Button 
+                onClick={() => {
+                  scrollToSection("#share");
+                  setIsMobileMenuOpen(false);
+                }}
+                className="btn-hero mt-2"
+              >
+                <Sparkles className="mr-2 h-4 w-4" />
+                Share Your Wish
+              </Button>
+            </div>
+          </motion.nav>
+        )}
       </div>
     </motion.header>
   );

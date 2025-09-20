@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Play, X, ChevronLeft, ChevronRight, Calendar, MapPin } from "lucide-react";
+import { Play, X, ChevronLeft, ChevronRight, Calendar, MapPin, Video, Camera, Clock } from "lucide-react";
 
 const highlights = [
   {
@@ -178,8 +178,9 @@ export const Highlights = () => {
           transition={{ duration: 0.8, delay: 0.2 }}
           viewport={{ once: true }}
         >
-          <h3 className="text-2xl font-outfit font-semibold text-center mb-12">
-            📹 Video Highlights
+          <h3 className="text-2xl font-outfit font-semibold text-center mb-12 flex items-center justify-center gap-2">
+            <Video className="h-6 w-6 text-primary" />
+            Video Highlights
           </h3>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -213,14 +214,25 @@ export const Highlights = () => {
                       )}
                       
                       <div className="absolute top-4 left-4">
-                        <Badge className="bg-background/90 text-foreground">
-                          {highlight.type === "video" ? "📹 Video" : "📷 Photo"}
+                        <Badge className="bg-background/90 text-foreground flex items-center gap-1">
+                          {highlight.type === "video" ? (
+                            <>
+                              <Video className="h-3 w-3" />
+                              Video
+                            </>
+                          ) : (
+                            <>
+                              <Camera className="h-3 w-3" />
+                              Photo
+                            </>
+                          )}
                         </Badge>
                       </div>
                       
                       {highlight.duration && (
                         <div className="absolute bottom-4 right-4">
-                          <Badge variant="secondary" className="bg-black/60 text-white">
+                          <Badge variant="secondary" className="bg-black/60 text-white flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
                             {highlight.duration}
                           </Badge>
                         </div>
@@ -260,8 +272,9 @@ export const Highlights = () => {
           transition={{ duration: 0.8, delay: 0.4 }}
           viewport={{ once: true }}
         >
-          <h3 className="text-2xl font-outfit font-semibold text-center mb-12">
-            📸 Photo Journey
+          <h3 className="text-2xl font-outfit font-semibold text-center mb-12 flex items-center justify-center gap-2">
+            <Camera className="h-6 w-6 text-primary" />
+            Photo Journey
           </h3>
           
           <div className="relative max-w-4xl mx-auto">

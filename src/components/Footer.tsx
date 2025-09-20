@@ -1,13 +1,13 @@
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Mail, Phone, MapPin, ExternalLink, Heart } from "lucide-react";
+import { Mail, Phone, MapPin, ExternalLink, Heart, Linkedin, Twitter, Instagram, Youtube, Gift, Cake } from "lucide-react";
 
 const socialLinks = [
-  { name: "LinkedIn", icon: "💼", href: "#" },
-  { name: "Twitter", icon: "🐦", href: "#" },
-  { name: "Instagram", icon: "📸", href: "#" },
-  { name: "YouTube", icon: "🎥", href: "#" }
+  { name: "LinkedIn", icon: <Linkedin className="h-4 w-4" />, href: "#" },
+  { name: "Twitter", icon: <Twitter className="h-4 w-4" />, href: "#" },
+  { name: "Instagram", icon: <Instagram className="h-4 w-4" />, href: "#" },
+  { name: "YouTube", icon: <Youtube className="h-4 w-4" />, href: "#" }
 ];
 
 const quickLinks = [
@@ -41,9 +41,9 @@ export const Footer = () => {
             viewport={{ once: true }}
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center">
-                <span className="text-primary font-outfit font-bold text-xl">F</span>
-              </div>
+            <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center">
+              <Gift className="text-primary h-6 w-6" />
+            </div>
               <div>
                 <h3 className="font-outfit font-bold text-xl">Birthday Celebration</h3>
                 <p className="text-primary-foreground/80">Honoring Our Founder</p>
@@ -61,11 +61,11 @@ export const Footer = () => {
                 <motion.a
                   key={social.name}
                   href={social.href}
-                  className="flex items-center gap-2 text-primary-foreground/80 hover:text-accent transition-colors"
+                  className="flex items-center gap-2 text-primary-foreground/80 hover:text-accent transition-colors p-2 rounded-lg hover:bg-primary-foreground/10"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <span className="text-lg">{social.icon}</span>
+                  {social.icon}
                   <span className="text-sm">{social.name}</span>
                 </motion.a>
               ))}
@@ -210,10 +210,12 @@ export const Footer = () => {
           viewport={{ once: true }}
         >
           <Card className="inline-block bg-accent/20 border-accent/30 backdrop-blur-sm">
-            <div className="p-4">
+            <div className="p-4 flex items-center gap-2">
+              <Heart className="h-5 w-5 text-accent" />
               <p className="text-accent font-outfit font-medium">
-                🎉 Made with love for an extraordinary founder 🎂
+                Made with love for an extraordinary founder
               </p>
+              <Cake className="h-5 w-5 text-accent" />
             </div>
           </Card>
         </motion.div>

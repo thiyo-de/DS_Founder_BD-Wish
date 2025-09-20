@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building, GraduationCap, Lightbulb, Users } from "lucide-react";
+import { Building, GraduationCap, Lightbulb, Users, Calendar, MapPin } from "lucide-react";
 
 const milestones = [
   {
@@ -94,7 +94,8 @@ export const About = () => {
           transition={{ duration: 1 }}
           viewport={{ once: true }}
         >
-          <h3 className="text-2xl font-outfit font-semibold text-center mb-12">
+          <h3 className="text-2xl font-outfit font-semibold text-center mb-12 flex items-center justify-center gap-2">
+            <Calendar className="h-6 w-6 text-primary" />
             Milestones & Journey
           </h3>
           
@@ -148,7 +149,8 @@ export const About = () => {
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-          <h3 className="text-2xl font-outfit font-semibold text-center mb-12">
+          <h3 className="text-2xl font-outfit font-semibold text-center mb-12 flex items-center justify-center gap-2">
+            <Users className="h-6 w-6 text-primary" />
             Core Values & Impact
           </h3>
           
