@@ -5,50 +5,70 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CheckCircle, XCircle, Search, Video, Image, Music, MessageSquare, Calendar } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
-// Mock data for demonstration
-const mockSubmissions = [
-  {
-    id: "1",
-    type: "video",
-    name: "John Doe",
-    message: "Happy birthday! Here's a special video message",
-    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    provider: "youtube",
-    status: "pending",
-    createdAt: new Date("2024-01-15"),
-    org: "Tech Corp"
-  },
-  {
-    id: "2",
-    type: "text",
-    name: "Jane Smith",
-    message: "Wishing you all the best on your special day! Your leadership has been inspiring.",
-    status: "approved",
-    createdAt: new Date("2024-01-14"),
-    city: "New York"
-  },
-  {
-    id: "3",
-    type: "voice",
-    name: "Mike Johnson",
-    message: "Voice message with heartfelt wishes",
-    url: "https://soundcloud.com/example/birthday-wish",
-    provider: "soundcloud",
-    status: "pending",
-    createdAt: new Date("2024-01-13")
-  }
-];
+type Submission = {
+  id: string;
+  type: 'video' | 'photo' | 'post' | 'voice' | 'text';
+  name: string;
+  message: string | null;
+  url: string | null;
+  provider: string | null;
+  status: 'pending' | 'approved' | 'rejected';
+  org: string | null;
+  city: string | null;
+  created_at: string;
+};
 
 const Admin = () => {
-  const [submissions, setSubmissions] = useState(mockSubmissions);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTab, setSelectedTab] = useState("dashboard");
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { data: submissions = [], isLoading } = useQuery({
+    queryKey: ['all-submissions'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('submissions')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data as Submission[];
+    }
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: 'approved' | 'rejected' }) => {
+      const { error } = await supabase
+        .from('submissions')
+        .update({ status })
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: (_, { status }) => {
+      queryClient.invalidateQueries({ queryKey: ['all-submissions'] });
+      queryClient.invalidateQueries({ queryKey: ['approved-submissions'] });
+      toast({
+        title: `Submission ${status}`,
+        description: `The wish has been ${status}.`
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update submission status",
+        variant: "destructive"
+      });
+    }
+  });
 
   const handleStatusUpdate = (id: string, newStatus: "approved" | "rejected") => {
-    setSubmissions(prev => 
-      prev.map(sub => sub.id === id ? { ...sub, status: newStatus } : sub)
-    );
+    updateStatusMutation.mutate({ id, status: newStatus });
   };
 
   const filteredSubmissions = submissions.filter(sub =>
@@ -164,7 +184,7 @@ const Admin = () => {
                       <div className="flex items-center gap-2">
                         {getStatusBadge(submission.status)}
                         <span className="text-sm text-muted-foreground">
-                          {submission.createdAt.toLocaleDateString()}
+                          {new Date(submission.created_at).toLocaleDateString()}
                         </span>
                       </div>
                     </div>
@@ -216,7 +236,7 @@ const Admin = () => {
                           )}
                           
                           <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                            <span>{submission.createdAt.toLocaleDateString()}</span>
+                            <span>{new Date(submission.created_at).toLocaleDateString()}</span>
                             {submission.org && <span>• {submission.org}</span>}
                             {submission.city && <span>• {submission.city}</span>}
                           </div>
@@ -229,6 +249,7 @@ const Admin = () => {
                             size="sm"
                             variant="outline"
                             onClick={() => handleStatusUpdate(submission.id, "approved")}
+                            disabled={updateStatusMutation.isPending}
                             className="text-green-600 border-green-600 hover:bg-green-50"
                           >
                             <CheckCircle className="h-4 w-4 mr-1" />
@@ -238,6 +259,7 @@ const Admin = () => {
                             size="sm"
                             variant="outline"
                             onClick={() => handleStatusUpdate(submission.id, "rejected")}
+                            disabled={updateStatusMutation.isPending}
                             className="text-destructive border-destructive hover:bg-destructive/10"
                           >
                             <XCircle className="h-4 w-4 mr-1" />
@@ -251,7 +273,20 @@ const Admin = () => {
               ))}
             </div>
 
-            {filteredSubmissions.length === 0 && (
+            {isLoading && (
+              <Card>
+                <CardContent className="p-12 text-center">
+                  <div className="flex items-center justify-center space-x-2 mb-4">
+                    <div className="w-4 h-4 bg-primary rounded-full animate-pulse"></div>
+                    <div className="w-4 h-4 bg-primary rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                    <div className="w-4 h-4 bg-primary rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+                  </div>
+                  <p className="text-muted-foreground">Loading submissions...</p>
+                </CardContent>
+              </Card>
+            )}
+
+            {!isLoading && filteredSubmissions.length === 0 && (
               <Card>
                 <CardContent className="p-12 text-center">
                   <p className="text-muted-foreground">No submissions found</p>

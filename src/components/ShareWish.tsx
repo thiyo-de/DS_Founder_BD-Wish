@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Video, Image, Music, MessageSquare, Send, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface WishFormData {
   name: string;
@@ -69,25 +70,35 @@ export const ShareWish = () => {
       return;
     }
 
+    if (type === "text" && !formData.message) {
+      toast({
+        title: "Message required",
+        description: "Please write your birthday wish.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      const submission = {
-        type,
-        name: formData.name,
-        message: formData.message,
-        url: formData.url,
-        provider: detectProvider(formData.url || ""),
-        org: formData.org,
-        city: formData.city,
-        contact: formData.contact,
-        status: "pending"
+      const submissionData = {
+        type: type as 'video' | 'photo' | 'voice' | 'text',
+        name: formData.name.trim(),
+        message: formData.message?.trim() || null,
+        url: formData.url?.trim() || null,
+        provider: formData.url ? detectProvider(formData.url) : null,
+        org: formData.org?.trim() || null,
+        city: formData.city?.trim() || null,
+        contact: formData.contact?.trim() || null,
+        status: 'pending'
       };
 
-      console.log("Submitting:", submission);
+      const { error } = await supabase
+        .from('submissions')
+        .insert([submissionData]);
+
+      if (error) throw error;
 
       toast({
         title: "Wish submitted successfully! 🎉",
@@ -106,6 +117,7 @@ export const ShareWish = () => {
       });
 
     } catch (error) {
+      console.error("Submission error:", error);
       toast({
         title: "Submission failed",
         description: "Please try again later.",

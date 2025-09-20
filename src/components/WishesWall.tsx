@@ -5,76 +5,41 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Video, Image, Music, MessageSquare, Search, Filter, Heart, Share, ExternalLink, Play } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
-// Mock data for demonstration
-const mockWishes = [
-  {
-    id: "1",
-    type: "video",
-    name: "Sarah Johnson",
-    message: "Happy birthday! Here's a special message from the team",
-    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    provider: "youtube",
-    status: "approved",
-    createdAt: new Date("2024-01-15"),
-    org: "Marketing Department",
-    city: "New York",
-    likes: 12
-  },
-  {
-    id: "2",
-    type: "text",
-    name: "Michael Chen",
-    message: "Your visionary leadership has transformed our company. Wishing you another year of success, innovation, and happiness. Thank you for being such an inspiring leader!",
-    status: "approved",
-    createdAt: new Date("2024-01-14"),
-    city: "San Francisco",
-    likes: 8
-  },
-  {
-    id: "3",
-    type: "photo",
-    name: "Emily Rodriguez",
-    message: "Team photo from our last conference where you inspired us all",
-    url: "https://drive.google.com/file/d/example123/view",
-    provider: "drive",
-    status: "approved",
-    createdAt: new Date("2024-01-13"),
-    org: "Engineering Team",
-    likes: 15
-  },
-  {
-    id: "4",
-    type: "voice",
-    name: "David Kim",
-    message: "A heartfelt birthday song from the Seoul office",
-    url: "https://soundcloud.com/user/birthday-wish",
-    provider: "soundcloud",
-    status: "approved",
-    createdAt: new Date("2024-01-12"),
-    org: "Seoul Branch",
-    city: "Seoul",
-    likes: 6
-  },
-  {
-    id: "5",
-    type: "text",
-    name: "Lisa Wong",
-    message: "Happy birthday to the most inspiring leader! 🎉 Your dedication to innovation continues to amaze us all.",
-    status: "approved",
-    createdAt: new Date("2024-01-11"),
-    org: "Product Team",
-    likes: 9
-  }
-];
+type Submission = {
+  id: string;
+  type: 'video' | 'photo' | 'post' | 'voice' | 'text';
+  name: string;
+  message: string | null;
+  url: string | null;
+  provider: string | null;
+  org: string | null;
+  city: string | null;
+  created_at: string;
+};
 
-const filters = ["All", "Video", "Photo/Post", "Voice", "Text", "Latest", "Most Liked"];
+const filters = ["All", "Video", "Photo/Post", "Voice", "Text", "Latest"];
 
 export const WishesWall = () => {
-  const [wishes] = useState(mockWishes);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
   const [likedWishes, setLikedWishes] = useState<Set<string>>(new Set());
+
+  const { data: wishes = [], isLoading } = useQuery({
+    queryKey: ['approved-submissions'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('submissions')
+        .select('*')
+        .eq('status', 'approved')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data as Submission[];
+    }
+  });
 
   const toggleLike = (wishId: string) => {
     setLikedWishes(prev => {
@@ -124,16 +89,13 @@ export const WishesWall = () => {
       return matchesSearch && matchesFilter;
     })
     .sort((a, b) => {
-      if (activeFilter === "Most Liked") {
-        return (b.likes || 0) - (a.likes || 0);
-      }
       if (activeFilter === "Latest") {
-        return b.createdAt.getTime() - a.createdAt.getTime();
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       }
-      return b.createdAt.getTime() - a.createdAt.getTime();
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
 
-  const WishCard = ({ wish }: { wish: typeof mockWishes[0] }) => {
+  const WishCard = ({ wish }: { wish: Submission }) => {
     const isLiked = likedWishes.has(wish.id);
     const providerBadge = wish.provider ? getProviderBadge(wish.provider) : null;
 
@@ -157,7 +119,7 @@ export const WishesWall = () => {
                 )}
               </div>
               <span className="text-xs text-muted-foreground">
-                {wish.createdAt.toLocaleDateString()}
+                {new Date(wish.created_at).toLocaleDateString()}
               </span>
             </div>
 
@@ -219,7 +181,7 @@ export const WishesWall = () => {
                 className={`flex items-center gap-1 ${isLiked ? 'text-red-500' : 'text-muted-foreground'}`}
               >
                 <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
-                <span className="text-xs">{(wish.likes || 0) + (isLiked ? 1 : 0)}</span>
+                <span className="text-xs">{isLiked ? 1 : 0}</span>
               </Button>
               
               <div className="flex items-center gap-2">
@@ -299,27 +261,44 @@ export const WishesWall = () => {
         </motion.div>
 
         {/* Wishes Grid */}
-        <motion.div
-          className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          viewport={{ once: true }}
-        >
-          {filteredWishes.map((wish, index) => (
-            <motion.div
-              key={wish.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              viewport={{ once: true }}
-            >
-              <WishCard wish={wish} />
-            </motion.div>
-          ))}
-        </motion.div>
+        {isLoading && (
+          <motion.div
+            className="text-center py-12"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <div className="flex items-center justify-center space-x-2 mb-4">
+              <div className="w-4 h-4 bg-primary rounded-full animate-pulse"></div>
+              <div className="w-4 h-4 bg-primary rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+              <div className="w-4 h-4 bg-primary rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+            </div>
+            <p className="text-muted-foreground">Loading wishes...</p>
+          </motion.div>
+        )}
 
-        {filteredWishes.length === 0 && (
+        {!isLoading && (
+          <motion.div
+            className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            viewport={{ once: true }}
+          >
+            {filteredWishes.map((wish, index) => (
+              <motion.div
+                key={wish.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
+              >
+                <WishCard wish={wish} />
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+
+        {!isLoading && filteredWishes.length === 0 && (
           <motion.div
             className="text-center py-12"
             initial={{ opacity: 0 }}
@@ -337,7 +316,7 @@ export const WishesWall = () => {
           </motion.div>
         )}
 
-        {filteredWishes.length > 0 && (
+        {!isLoading && filteredWishes.length > 0 && (
           <motion.div
             className="text-center mt-12"
             initial={{ opacity: 0 }}
