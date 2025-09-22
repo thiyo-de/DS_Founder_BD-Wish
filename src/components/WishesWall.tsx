@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Video, Image, Music, MessageSquare, Search, Filter, Heart, Share, ExternalLink, Play } from "lucide-react";
+import { Video, Image, Music, MessageSquare, Search, Filter, ExternalLink, Play } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -31,7 +31,6 @@ const filters = ["All", "Video", "Photo/Post", "Voice", "Text", "Latest"];
 export const WishesWall = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
-  const [likedWishes, setLikedWishes] = useState<Set<string>>(new Set());
 
   const { data: wishes = [], isLoading } = useQuery({
     queryKey: ['approved-submissions'],
@@ -47,17 +46,6 @@ export const WishesWall = () => {
     }
   });
 
-  const toggleLike = (wishId: string) => {
-    setLikedWishes(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(wishId)) {
-        newSet.delete(wishId);
-      } else {
-        newSet.add(wishId);
-      }
-      return newSet;
-    });
-  };
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -102,7 +90,6 @@ export const WishesWall = () => {
     });
 
   const WishCard = ({ wish }: { wish: Submission }) => {
-    const isLiked = likedWishes.has(wish.id);
     const providerBadge = wish.provider ? getProviderBadge(wish.provider) : null;
     const isFileBased = !!wish.file_url;
 
@@ -259,29 +246,6 @@ export const WishesWall = () => {
               )}
             </div>
 
-            {/* Actions */}
-            <div className="flex items-center justify-between pt-2 border-t">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => toggleLike(wish.id)}
-                className={`flex items-center gap-1 ${isLiked ? 'text-red-500' : 'text-muted-foreground'}`}
-              >
-                <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
-                <span className="text-xs">{isLiked ? 1 : 0}</span>
-              </Button>
-              
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm">
-                  <Share className="h-4 w-4" />
-                </Button>
-                {(wish.url || wish.file_url) && (
-                  <Button variant="ghost" size="sm">
-                    <ExternalLink className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            </div>
           </CardContent>
         </Card>
       </motion.div>

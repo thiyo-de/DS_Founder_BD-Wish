@@ -108,7 +108,7 @@ export const ShareWish = () => {
         file_url: formData.file_url || null,
         file_type: formData.file_type || null,
         file_size: formData.file_size || null,
-        duration: formData.duration || null,
+        duration: formData.duration ? Math.round(formData.duration) : null,
         thumbnail_url: formData.thumbnail_url || null,
       };
 
