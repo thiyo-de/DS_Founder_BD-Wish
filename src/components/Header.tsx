@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Menu, X, Gift, Sparkles } from "lucide-react";
+import { Menu, X, Gift, Sparkles, Shield } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const navigationItems = [
   { name: "About", href: "#about" },
@@ -74,6 +75,20 @@ export const Header = () => {
                 {item.name}
               </motion.button>
             ))}
+            
+            {/* Admin Link */}
+            <Link to="/admin">
+              <motion.button
+                className="text-muted-foreground hover:text-primary transition-colors font-medium text-sm"
+                whileHover={{ y: -2 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: navigationItems.length * 0.1 }}
+                title="Admin Access"
+              >
+                <Shield className="h-4 w-4" />
+              </motion.button>
+            </Link>
           </nav>
 
           {/* Mobile Menu Button */}
@@ -128,6 +143,18 @@ export const Header = () => {
                   {item.name}
                 </button>
               ))}
+              
+              {/* Mobile Admin Link */}
+              <Link to="/admin">
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-2 text-left text-muted-foreground hover:text-primary transition-colors font-medium py-2 text-sm"
+                >
+                  <Shield className="h-4 w-4" />
+                  Admin Access
+                </button>
+              </Link>
+              
               <Button 
                 onClick={() => {
                   scrollToSection("#share");
