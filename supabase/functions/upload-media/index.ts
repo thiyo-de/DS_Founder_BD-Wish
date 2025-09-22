@@ -51,24 +51,25 @@ serve(async (req) => {
       throw new Error('Cloudinary credentials missing');
     }
 
-    // Create upload data
-    const uploadData = new FormData();
-    uploadData.append('file', file);
-    uploadData.append('upload_preset', 'tribute_uploads'); // You may need to create this preset in Cloudinary
-    
     // Set resource type based on file type
     const resourceType = fileType === 'image' ? 'image' : fileType === 'video' ? 'video' : 'video'; // audio uploads as video in Cloudinary
     
     // Upload to Cloudinary
     const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`;
     
-    // Add authentication
+    // Create upload data with authentication
     const timestamp = Math.round(new Date().getTime() / 1000);
+    const publicId = `tribute_${timestamp}_${crypto.randomUUID()}`;
+    
+    // Create signature for authentication
+    const paramsToSign = `public_id=${publicId}&timestamp=${timestamp}`;
+    const signature = await createSignature(paramsToSign, apiSecret);
+    
+    const uploadData = new FormData();
+    uploadData.append('file', file);
+    uploadData.append('public_id', publicId);
     uploadData.append('timestamp', timestamp.toString());
     uploadData.append('api_key', apiKey);
-    
-    // Create signature (simplified - in production, use proper signature generation)
-    const signature = await createSignature(timestamp.toString(), cloudName, apiSecret);
     uploadData.append('signature', signature);
 
     const cloudinaryResponse = await fetch(uploadUrl, {
@@ -114,9 +115,9 @@ serve(async (req) => {
   }
 });
 
-// Simple signature creation (for demo - use proper crypto in production)
-async function createSignature(timestamp: string, cloudName: string, apiSecret: string): Promise<string> {
-  const stringToSign = `timestamp=${timestamp}${apiSecret}`;
+// Cloudinary signature creation
+async function createSignature(paramsToSign: string, apiSecret: string): Promise<string> {
+  const stringToSign = `${paramsToSign}${apiSecret}`;
   const encoder = new TextEncoder();
   const data = encoder.encode(stringToSign);
   const hashBuffer = await crypto.subtle.digest('SHA-1', data);

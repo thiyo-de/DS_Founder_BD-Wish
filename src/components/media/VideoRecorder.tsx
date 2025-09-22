@@ -26,11 +26,35 @@ export const VideoRecorder: React.FC<VideoRecorderProps> = ({
     resetRecording,
   } = useMediaRecorder({ maxDuration, mediaType: 'video' });
 
+  // Handle live video stream during recording
+  const handleStartRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+      await startRecording();
+    } catch (err) {
+      console.error('Error accessing camera:', err);
+    }
+  };
+
+  const handleStopRecording = () => {
+    // Clean up video stream
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      stream.getTracks().forEach(track => track.stop());
+      videoRef.current.srcObject = null;
+    }
+    stopRecording();
+  };
+
   useEffect(() => {
     if (recordedBlob) {
       const url = URL.createObjectURL(recordedBlob);
       if (videoRef.current) {
         videoRef.current.src = url;
+        videoRef.current.srcObject = null; // Clear live stream
       }
       onRecordingComplete(recordedBlob);
       
@@ -87,7 +111,7 @@ export const VideoRecorder: React.FC<VideoRecorderProps> = ({
 
       <div className="flex items-center justify-center space-x-2">
         {!isRecording && !recordedBlob && (
-          <Button onClick={startRecording} className="bg-red-500 hover:bg-red-600 text-white">
+          <Button onClick={handleStartRecording} className="bg-red-500 hover:bg-red-600 text-white">
             <Video className="h-4 w-4 mr-2" />
             Start Recording
           </Button>
@@ -105,7 +129,7 @@ export const VideoRecorder: React.FC<VideoRecorderProps> = ({
               </Button>
             )}
             
-            <Button onClick={stopRecording} variant="outline">
+            <Button onClick={handleStopRecording} variant="outline">
               <Square className="h-4 w-4" />
             </Button>
           </>

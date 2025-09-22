@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Video, Image, Music, MessageSquare, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useFileUpload } from "@/hooks/useFileUpload";
 import { supabase } from "@/integrations/supabase/client";
 import { VideoRecorder } from "@/components/media/VideoRecorder";
 import { AudioRecorder } from "@/components/media/AudioRecorder";
@@ -31,6 +32,7 @@ interface WishFormData {
 
 export const ShareWish = () => {
   const { toast } = useToast();
+  const { uploadFile } = useFileUpload();
   const [activeTab, setActiveTab] = useState("video");
   const [formData, setFormData] = useState<WishFormData>({
     name: "",
@@ -225,17 +227,13 @@ export const ShareWish = () => {
                       
                       <TabsContent value="record">
                         <VideoRecorder 
-                          onRecordingComplete={(blob) => {
-                            // Note: In a real implementation, you'd upload the blob here
-                            // For now, we'll simulate the upload result
-                            const mockResult = {
-                              file_url: URL.createObjectURL(blob),
-                              file_type: blob.type,
-                              file_size: blob.size,
-                              duration: 30, // Would be detected from the actual recording
-                              thumbnail_url: URL.createObjectURL(blob),
-                            };
-                            handleMediaUpload(mockResult);
+                          onRecordingComplete={async (blob) => {
+                            // Convert blob to file and upload
+                            const file = new File([blob], `video-${Date.now()}.webm`, { type: blob.type });
+                            const result = await uploadFile(file, 'video');
+                            if (result) {
+                              handleMediaUpload(result);
+                            }
                           }}
                           maxDuration={60}
                         />
@@ -284,15 +282,13 @@ export const ShareWish = () => {
                       
                       <TabsContent value="record">
                         <AudioRecorder 
-                          onRecordingComplete={(blob) => {
-                            // Note: In a real implementation, you'd upload the blob here
-                            const mockResult = {
-                              file_url: URL.createObjectURL(blob),
-                              file_type: blob.type,
-                              file_size: blob.size,
-                              duration: 20, // Would be detected from the actual recording
-                            };
-                            handleMediaUpload(mockResult);
+                          onRecordingComplete={async (blob) => {
+                            // Convert blob to file and upload
+                            const file = new File([blob], `audio-${Date.now()}.webm`, { type: blob.type });
+                            const result = await uploadFile(file, 'audio');
+                            if (result) {
+                              handleMediaUpload(result);
+                            }
                           }}
                           maxDuration={30}
                         />
