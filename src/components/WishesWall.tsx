@@ -80,13 +80,16 @@ const getTypeIcon = (type: string) => {
                           wish.message?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           wish.org?.toLowerCase().includes(searchTerm.toLowerCase());
       
+      // Normalize types for filtering
       const normalizedType = wish.type === 'photo' ? 'image' : wish.type === 'voice' ? 'audio' : wish.type;
 
       const matchesFilter =
         activeFilter === "All" ||
         activeFilter === "Latest" ||
         (activeFilter === "Photo/Post" && (normalizedType === "image" || wish.type === "post")) ||
-        activeFilter.toLowerCase() === normalizedType;
+        (activeFilter === "Voice" && (normalizedType === "audio" || wish.type === "voice")) ||
+        (activeFilter === "Video" && normalizedType === "video") ||
+        (activeFilter === "Text" && normalizedType === "text");
       
       return matchesSearch && matchesFilter;
     })
@@ -127,7 +130,9 @@ const getTypeIcon = (type: string) => {
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-2">
                 {getTypeIcon(wish.type)}
-                <span className="font-medium text-sm capitalize">{wish.type}</span>
+                <span className="font-medium text-sm capitalize">
+                  {wish.type === 'voice' ? 'audio' : wish.type === 'photo' ? 'image' : wish.type}
+                </span>
                 {isFileBased && (
                   <Badge className="text-xs bg-green-100 text-green-800">
                     Uploaded
@@ -181,7 +186,7 @@ const getTypeIcon = (type: string) => {
               </div>
             )}
 
-            {(wish.type === "photo" || wish.type === "post") && (
+            {(wish.type === "photo" || wish.type === "post" || wish.type === "image") && (
               <div className="mb-4">
                 {isFileBased ? (
                   <div className="relative aspect-square bg-surface rounded-lg overflow-hidden cursor-pointer" onClick={() => setPreviewWish(wish)}>
@@ -190,6 +195,13 @@ const getTypeIcon = (type: string) => {
                       alt="Uploaded image"
                       className="w-full h-full object-cover"
                     />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/0 hover:bg-black/20 transition-colors">
+                      <div className="opacity-0 hover:opacity-100 transition-opacity">
+                        <div className="bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1 text-sm font-medium">
+                          Click to view
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <div className="aspect-square bg-surface rounded-lg flex items-center justify-center mb-3">
@@ -199,10 +211,10 @@ const getTypeIcon = (type: string) => {
               </div>
             )}
 
-            {wish.type === "voice" && (
+            {(wish.type === "voice" || wish.type === "audio") && (
               <div className="mb-4">
                 {isFileBased ? (
-                  <div className="bg-surface rounded-lg p-4">
+                  <div className="bg-surface rounded-lg p-4 cursor-pointer" onClick={() => setPreviewWish(wish)}>
                     <div className="flex items-center gap-3 mb-3">
                       <Music className="h-6 w-6 text-primary" />
                       <div className="flex-1">
@@ -211,15 +223,16 @@ const getTypeIcon = (type: string) => {
                           {wish.duration && formatDuration(wish.duration)} • {wish.file_size && formatFileSize(wish.file_size)}
                         </div>
                       </div>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setPreviewWish(wish); }}>
                         <Play className="h-4 w-4" />
                       </Button>
                     </div>
-                    <audio 
-                      controls 
-                      className="w-full h-8"
-                      src={wish.file_url}
-                    />
+                    <div className="bg-primary/10 rounded-lg p-3 flex items-center justify-center">
+                      <div className="flex items-center gap-2 text-primary">
+                        <Play className="h-5 w-5" />
+                        <span className="text-sm font-medium">Click to play</span>
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <div className="bg-surface rounded-lg p-4 flex items-center justify-center">
@@ -388,6 +401,96 @@ const getTypeIcon = (type: string) => {
             </Button>
           </motion.div>
         )}
+
+        {/* Media Preview Dialog */}
+        <Dialog open={!!previewWish} onOpenChange={() => setPreviewWish(null)}>
+          <DialogContent className="max-w-4xl w-full h-[80vh] p-0">
+            {previewWish && (
+              <div className="flex flex-col h-full">
+                <DialogHeader className="p-6 pb-4">
+                  <DialogTitle className="flex items-center gap-2">
+                    {getTypeIcon(previewWish.type)}
+                    {previewWish.name}
+                  </DialogTitle>
+                  {previewWish.message && (
+                    <DialogDescription className="text-left">
+                      {previewWish.message}
+                    </DialogDescription>
+                  )}
+                </DialogHeader>
+                
+                <div className="flex-1 p-6 pt-0">
+                  {/* Video Preview */}
+                  {previewWish.type === "video" && previewWish.file_url && (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <video
+                        src={previewWish.file_url}
+                        controls
+                        autoPlay
+                        className="max-w-full max-h-full rounded-lg"
+                        poster={previewWish.thumbnail_url || undefined}
+                      />
+                    </div>
+                  )}
+                  
+                  {/* Audio Preview */}
+                  {(previewWish.type === "voice" || previewWish.type === "audio") && previewWish.file_url && (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <div className="text-center space-y-6">
+                        <div className="bg-primary/10 rounded-full w-32 h-32 flex items-center justify-center mx-auto">
+                          <Music className="h-16 w-16 text-primary" />
+                        </div>
+                        <audio
+                          src={previewWish.file_url}
+                          controls
+                          autoPlay
+                          className="w-full max-w-md"
+                        />
+                        <div className="text-sm text-muted-foreground">
+                          {previewWish.duration && `Duration: ${Math.floor(previewWish.duration / 60)}:${(previewWish.duration % 60).toString().padStart(2, '0')}`}
+                          {previewWish.file_size && ` • Size: ${(previewWish.file_size / (1024 * 1024)).toFixed(1)}MB`}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Image Preview */}
+                  {(previewWish.type === "photo" || previewWish.type === "post" || previewWish.type === "image") && previewWish.file_url && (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <img
+                        src={previewWish.file_url}
+                        alt="Wish image"
+                        className="max-w-full max-h-full object-contain rounded-lg"
+                      />
+                    </div>
+                  )}
+                  
+                  {/* Text Preview */}
+                  {previewWish.type === "text" && (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <div className="max-w-2xl text-center space-y-4">
+                        <MessageSquare className="h-16 w-16 text-primary mx-auto" />
+                        <div className="text-lg leading-relaxed">
+                          {previewWish.message}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Meta Information */}
+                <div className="border-t p-6 bg-surface/50">
+                  <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                    <div>Submitted by: <span className="font-medium">{previewWish.name}</span></div>
+                    {previewWish.org && <div>Organization: <span className="font-medium">{previewWish.org}</span></div>}
+                    {previewWish.city && <div>City: <span className="font-medium">{previewWish.city}</span></div>}
+                    <div>Date: <span className="font-medium">{new Date(previewWish.created_at).toLocaleDateString()}</span></div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </section>
   );
