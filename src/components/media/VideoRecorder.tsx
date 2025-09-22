@@ -1,7 +1,7 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useMediaRecorder } from '@/hooks/useMediaRecorder';
-import { Play, Square, Pause, RotateCcw, Video } from 'lucide-react';
+import { Play, Square, Pause, RotateCcw, Video, Camera } from 'lucide-react';
 
 interface VideoRecorderProps {
   onRecordingComplete: (blob: Blob) => void;
@@ -16,6 +16,7 @@ export const VideoRecorder: React.FC<VideoRecorderProps> = ({
   const {
     isRecording,
     isPaused,
+    stream,
     recordedBlob,
     duration,
     error,
@@ -26,16 +27,17 @@ export const VideoRecorder: React.FC<VideoRecorderProps> = ({
     resetRecording,
   } = useMediaRecorder({ maxDuration, mediaType: 'video' });
 
+  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
+
   // Handle live video stream during recording
   const handleStartRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
-      await startRecording();
+      await startRecording({
+        video: { facingMode },
+        audio: true,
+      });
     } catch (err) {
-      console.error('Error accessing camera:', err);
+      console.error('Error starting recording:', err);
     }
   };
 
@@ -48,6 +50,16 @@ export const VideoRecorder: React.FC<VideoRecorderProps> = ({
     }
     stopRecording();
   };
+
+  useEffect(() => {
+    if (videoRef.current && stream) {
+      videoRef.current.srcObject = stream;
+      const playPromise = videoRef.current.play?.();
+      if (playPromise && typeof (playPromise as any).then === 'function') {
+        (playPromise as Promise<void>).catch(() => {});
+      }
+    }
+  }, [stream]);
 
   useEffect(() => {
     if (recordedBlob) {
@@ -89,6 +101,7 @@ export const VideoRecorder: React.FC<VideoRecorderProps> = ({
           controls={!!recordedBlob}
           autoPlay={isRecording}
           muted={isRecording}
+          playsInline
         />
         
         {isRecording && (
@@ -111,10 +124,16 @@ export const VideoRecorder: React.FC<VideoRecorderProps> = ({
 
       <div className="flex items-center justify-center space-x-2">
         {!isRecording && !recordedBlob && (
-          <Button onClick={handleStartRecording} className="bg-red-500 hover:bg-red-600 text-white">
-            <Video className="h-4 w-4 mr-2" />
-            Start Recording
-          </Button>
+          <>
+            <Button onClick={() => setFacingMode(prev => prev === 'user' ? 'environment' : 'user')} variant="outline">
+              <Camera className="h-4 w-4 mr-2" />
+              Switch Camera
+            </Button>
+            <Button onClick={handleStartRecording} className="bg-red-500 hover:bg-red-600 text-white">
+              <Video className="h-4 w-4 mr-2" />
+              Start Recording
+            </Button>
+          </>
         )}
 
         {isRecording && (

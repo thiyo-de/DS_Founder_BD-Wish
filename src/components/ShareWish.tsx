@@ -95,8 +95,9 @@ export const ShareWish = () => {
     setIsSubmitting(true);
 
     try {
+      const normalizedType = type === 'photo' ? 'image' : type === 'voice' ? 'audio' : type;
       const submissionData = {
-        type: type as 'video' | 'photo' | 'voice' | 'text',
+        type: normalizedType as 'video' | 'image' | 'audio' | 'text',
         name: formData.name.trim(),
         message: formData.message?.trim() || null,
         org: formData.org?.trim() || null,
@@ -137,7 +138,7 @@ export const ShareWish = () => {
       console.error("Submission error:", error);
       toast({
         title: "Submission failed",
-        description: "Please try again later.",
+        description: error instanceof Error ? error.message : "Please try again later.",
         variant: "destructive"
       });
     } finally {
@@ -244,7 +245,7 @@ export const ShareWish = () => {
                           onUploadComplete={handleMediaUpload}
                           fileType="video"
                           maxSize={50}
-                          acceptedTypes={['video/mp4', 'video/webm', 'video/mov', 'video/avi']}
+                          acceptedTypes={['video/mp4', 'video/webm', 'video/quicktime', 'video/avi']}
                         />
                       </TabsContent>
                     </Tabs>
