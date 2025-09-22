@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        'outfit': ['Outfit', 'sans-serif'],
-        'inter': ['Inter', 'sans-serif'],
+        'satoshi': ['Satoshi', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        'space': ['Space Grotesk', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -71,6 +71,22 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        '2xl': '1rem',
+      },
+      container: {
+        center: true,
+        padding: {
+          DEFAULT: "1rem",
+          sm: "1.5rem",
+          lg: "2rem",
+        },
+        screens: {
+          sm: "640px",
+          md: "768px",
+          lg: "1024px",
+          xl: "1200px",
+          "2xl": "1280px",
+        },
       },
       keyframes: {
         "accordion-down": {

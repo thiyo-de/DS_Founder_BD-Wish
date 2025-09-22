@@ -36,27 +36,27 @@ export const Header = () => {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
         isScrolled 
-          ? "bg-background/90 backdrop-blur-lg border-b border-border shadow-soft" 
+          ? "bg-background/95 backdrop-blur-xl border-b border-border shadow-soft" 
           : "bg-transparent"
       )}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
     >
-      <div className="container mx-auto px-6 py-4">
+      <div className="container-custom py-4">
         <div className="flex items-center justify-between">
           <motion.div 
             className="flex items-center gap-3"
             whileHover={{ scale: 1.02 }}
           >
-            <div className="w-10 h-10 bg-gradient-hero rounded-full flex items-center justify-center">
-              <Gift className="text-primary-foreground h-5 w-5" />
+            <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary-light rounded-2xl flex items-center justify-center shadow-soft">
+              <Gift className="text-primary-foreground h-6 w-6" />
             </div>
             <div>
-              <h1 className="font-outfit font-bold text-xl text-foreground">
+              <h1 className="font-satoshi font-bold text-xl text-foreground">
                 Birthday Wishes
               </h1>
-              <p className="text-sm text-muted-foreground">to our Founder</p>
+              <p className="text-sm text-muted-foreground font-space">to our Founder</p>
             </div>
           </motion.div>
 
@@ -65,7 +65,7 @@ export const Header = () => {
               <motion.button
                 key={item.name}
                 onClick={() => scrollToSection(item.href)}
-                className="text-foreground hover:text-primary transition-colors font-medium"
+                className="text-foreground hover:text-primary transition-colors font-space font-medium focus-ring px-2 py-1 rounded-lg"
                 whileHover={{ y: -2 }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -82,6 +82,7 @@ export const Header = () => {
               variant="ghost"
               size="sm"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="focus-ring"
             >
               {isMobileMenuOpen ? (
                 <X className="h-5 w-5" />
@@ -99,7 +100,7 @@ export const Header = () => {
           >
             <Button 
               onClick={() => scrollToSection("#share")}
-              className="btn-hero"
+              className="btn-hero focus-ring"
             >
               <Sparkles className="mr-2 h-4 w-4" />
               Share Your Wish
@@ -110,7 +111,7 @@ export const Header = () => {
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <motion.nav
-            className="lg:hidden mt-4 pt-4 border-t border-border"
+            className="lg:hidden mt-6 pt-6 border-t border-border"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
@@ -123,7 +124,7 @@ export const Header = () => {
                     scrollToSection(item.href);
                     setIsMobileMenuOpen(false);
                   }}
-                  className="text-left text-foreground hover:text-primary transition-colors font-medium py-2"
+                  className="text-left text-foreground hover:text-primary transition-colors font-space font-medium py-3 px-2 rounded-lg focus-ring"
                 >
                   {item.name}
                 </button>
@@ -133,7 +134,7 @@ export const Header = () => {
                   scrollToSection("#share");
                   setIsMobileMenuOpen(false);
                 }}
-                className="btn-hero mt-2"
+                className="btn-hero mt-4 focus-ring"
               >
                 <Sparkles className="mr-2 h-4 w-4" />
                 Share Your Wish
