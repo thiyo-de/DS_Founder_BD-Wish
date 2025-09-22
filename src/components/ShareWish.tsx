@@ -300,7 +300,7 @@ export const ShareWish = () => {
                           onUploadComplete={handleMediaUpload}
                           fileType="audio"
                           maxSize={10}
-                          acceptedTypes={['audio/mp3', 'audio/wav', 'audio/m4a', 'audio/webm']}
+                          acceptedTypes={['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/m4a', 'audio/webm']}
                         />
                       </TabsContent>
                     </Tabs>
