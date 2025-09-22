@@ -42,12 +42,24 @@ export const useFileUpload = (): UseFileUploadReturn => {
         body: formData,
       });
 
-      if (uploadError) {
-        throw new Error(uploadError.message);
-      }
-
-      if (!data.success) {
-        throw new Error(data.error || 'Upload failed');
+      // Fallback to direct fetch if invoke fails (handles large FormData reliably)
+      if (uploadError || !data?.success) {
+        const SUPABASE_URL = 'https://hcvbsbiqcphrendiwcdg.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhjdmJzYmlxY3BocmVuZGl3Y2RnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzNTE1ODMsImV4cCI6MjA3MzkyNzU4M30.HzPc8u-b1griOqk4t38LAvGb43Hw9c9uVHrng9kPhls';
+        const resp = await fetch(`${SUPABASE_URL}/functions/v1/upload-media`, {
+          method: 'POST',
+          headers: {
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+          },
+          body: formData,
+        });
+        const json = await resp.json().catch(() => null);
+        if (!resp.ok || !json?.success) {
+          throw new Error(json?.error || uploadError?.message || 'Upload failed');
+        }
+        setProgress(100);
+        return json as UploadResult;
       }
 
       setProgress(100);

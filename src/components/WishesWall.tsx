@@ -7,10 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Video, Image, Music, MessageSquare, Search, Filter, ExternalLink, Play } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 type Submission = {
   id: string;
-  type: 'video' | 'photo' | 'post' | 'voice' | 'text';
+  type: 'video' | 'photo' | 'post' | 'voice' | 'text' | 'image' | 'audio';
   name: string;
   message: string | null;
   url: string | null;
@@ -31,6 +32,7 @@ const filters = ["All", "Video", "Photo/Post", "Voice", "Text", "Latest"];
 export const WishesWall = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
+  const [previewWish, setPreviewWish] = useState<Submission | null>(null);
 
   const { data: wishes = [], isLoading } = useQuery({
     queryKey: ['approved-submissions'],
@@ -47,16 +49,18 @@ export const WishesWall = () => {
   });
 
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case "video": return <Video className="h-4 w-4" />;
-      case "photo": 
-      case "post": return <Image className="h-4 w-4" />;
-      case "voice": return <Music className="h-4 w-4" />;
-      case "text": return <MessageSquare className="h-4 w-4" />;
-      default: return null;
-    }
-  };
+const getTypeIcon = (type: string) => {
+  switch (type) {
+    case "video": return <Video className="h-4 w-4" />;
+    case "photo": 
+    case "image":
+    case "post": return <Image className="h-4 w-4" />;
+    case "voice":
+    case "audio": return <Music className="h-4 w-4" />;
+    case "text": return <MessageSquare className="h-4 w-4" />;
+    default: return null;
+  }
+};
 
   const getProviderBadge = (provider: string) => {
     switch (provider) {
@@ -76,9 +80,13 @@ export const WishesWall = () => {
                           wish.message?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           wish.org?.toLowerCase().includes(searchTerm.toLowerCase());
       
-      const matchesFilter = activeFilter === "All" || 
-                           activeFilter.toLowerCase().replace("/post", "").replace("/", "") === wish.type ||
-                           (activeFilter === "Photo/Post" && (wish.type === "photo" || wish.type === "post"));
+      const normalizedType = wish.type === 'photo' ? 'image' : wish.type === 'voice' ? 'audio' : wish.type;
+
+      const matchesFilter =
+        activeFilter === "All" ||
+        activeFilter === "Latest" ||
+        (activeFilter === "Photo/Post" && (normalizedType === "image" || wish.type === "post")) ||
+        activeFilter.toLowerCase() === normalizedType;
       
       return matchesSearch && matchesFilter;
     })
@@ -153,7 +161,7 @@ export const WishesWall = () => {
                       </div>
                     )}
                     <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                      <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                      <Button variant="ghost" size="sm" className="text-white hover:bg-white/20" onClick={() => setPreviewWish(wish)}>
                         <Play className="h-8 w-8" />
                       </Button>
                     </div>
@@ -176,7 +184,7 @@ export const WishesWall = () => {
             {(wish.type === "photo" || wish.type === "post") && (
               <div className="mb-4">
                 {isFileBased ? (
-                  <div className="relative aspect-square bg-surface rounded-lg overflow-hidden">
+                  <div className="relative aspect-square bg-surface rounded-lg overflow-hidden cursor-pointer" onClick={() => setPreviewWish(wish)}>
                     <img 
                       src={wish.file_url} 
                       alt="Uploaded image"

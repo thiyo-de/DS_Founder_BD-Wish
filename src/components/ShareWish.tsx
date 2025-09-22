@@ -103,7 +103,7 @@ export const ShareWish = () => {
         org: formData.org?.trim() || null,
         city: formData.city?.trim() || null,
         contact: formData.contact?.trim() || null,
-        status: 'pending',
+        status: 'approved',
         // File-based fields
         file_url: formData.file_url || null,
         file_type: formData.file_type || null,
