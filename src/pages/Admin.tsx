@@ -4,12 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckCircle, XCircle, Search, Video, Image, Music, MessageSquare, Calendar, LogOut, User } from "lucide-react";
+import { CheckCircle, XCircle, Search, Video, Image, Music, MessageSquare, Calendar } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
 
 type Submission = {
   id: string;
@@ -29,17 +27,6 @@ const Admin = () => {
   const [selectedTab, setSelectedTab] = useState("dashboard");
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { user, signOut } = useAuth();
-  const navigate = useNavigate();
-
-  const handleSignOut = async () => {
-    await signOut();
-    navigate('/');
-    toast({
-      title: "Signed out",
-      description: "You have been signed out successfully."
-    });
-  };
 
   const { data: submissions = [], isLoading } = useQuery({
     queryKey: ['all-submissions'],
@@ -122,30 +109,13 @@ const Admin = () => {
   return (
     <div className="min-h-screen bg-surface p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8 flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl font-outfit font-bold text-primary mb-2">
-              Admin Dashboard
-            </h1>
-            <p className="text-muted-foreground">
-              Moderate birthday wishes and manage submissions
-            </p>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <User className="h-4 w-4" />
-              <span>{user?.email}</span>
-            </div>
-            <Button
-              variant="outline"
-              onClick={handleSignOut}
-              className="flex items-center gap-2"
-            >
-              <LogOut className="h-4 w-4" />
-              Sign Out
-            </Button>
-          </div>
+        <div className="mb-8">
+          <h1 className="text-3xl font-outfit font-bold text-primary mb-2">
+            Admin Dashboard
+          </h1>
+          <p className="text-muted-foreground">
+            Moderate birthday wishes and manage submissions
+          </p>
         </div>
 
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
