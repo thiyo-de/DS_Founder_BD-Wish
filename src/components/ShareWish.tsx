@@ -103,7 +103,7 @@ export const ShareWish = () => {
         org: formData.org?.trim() || null,
         city: formData.city?.trim() || null,
         contact: formData.contact?.trim() || null,
-        status: 'pending',
+        status: 'approved',
         // File-based fields
         file_url: formData.file_url || null,
         file_type: formData.file_type || null,
@@ -120,8 +120,12 @@ export const ShareWish = () => {
 
       toast({
         title: "Wish submitted successfully! 🎉",
-        description: "Thank you! Your wish has been submitted for review and will appear on the wall once approved."
+        description: "Thank you! Your birthday wish is now live on the celebration wall."
       });
+
+      // Refresh the wishes wall by invalidating the query cache
+      window.location.hash = 'wishes';
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
 
       // Reset form
       setFormData({
