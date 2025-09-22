@@ -18,6 +18,12 @@ type Submission = {
   org: string | null;
   city: string | null;
   created_at: string;
+  // New file-based fields
+  file_url: string | null;
+  file_type: string | null;
+  file_size: number | null;
+  duration: number | null;
+  thumbnail_url: string | null;
 };
 
 const filters = ["All", "Video", "Photo/Post", "Voice", "Text", "Latest"];
@@ -98,6 +104,21 @@ export const WishesWall = () => {
   const WishCard = ({ wish }: { wish: Submission }) => {
     const isLiked = likedWishes.has(wish.id);
     const providerBadge = wish.provider ? getProviderBadge(wish.provider) : null;
+    const isFileBased = !!wish.file_url;
+
+    const formatFileSize = (bytes: number) => {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
+
+    const formatDuration = (seconds: number) => {
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${mins}:${secs.toString().padStart(2, '0')}`;
+    };
 
     return (
       <motion.div
@@ -112,7 +133,12 @@ export const WishesWall = () => {
               <div className="flex items-center gap-2">
                 {getTypeIcon(wish.type)}
                 <span className="font-medium text-sm capitalize">{wish.type}</span>
-                {providerBadge && (
+                {isFileBased && (
+                  <Badge className="text-xs bg-green-100 text-green-800">
+                    Uploaded
+                  </Badge>
+                )}
+                {!isFileBased && providerBadge && (
                   <Badge className={`text-xs ${providerBadge.color}`}>
                     {providerBadge.text}
                   </Badge>
@@ -123,36 +149,94 @@ export const WishesWall = () => {
               </span>
             </div>
 
-            {/* Content based on type */}
+            {/* Content based on type and whether it's file-based */}
             {wish.type === "video" && (
               <div className="mb-4">
-                <div className="aspect-video bg-surface rounded-lg flex items-center justify-center mb-3">
-                  <Button variant="ghost" size="sm" className="text-primary">
-                    <Play className="h-8 w-8" />
-                  </Button>
-                </div>
+                {isFileBased ? (
+                  <div className="relative aspect-video bg-surface rounded-lg overflow-hidden">
+                    {wish.thumbnail_url ? (
+                      <img 
+                        src={wish.thumbnail_url} 
+                        alt="Video thumbnail"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Video className="h-12 w-12 text-muted-foreground" />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                      <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                        <Play className="h-8 w-8" />
+                      </Button>
+                    </div>
+                    {wish.duration && (
+                      <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                        {formatDuration(wish.duration)}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="aspect-video bg-surface rounded-lg flex items-center justify-center mb-3">
+                    <Button variant="ghost" size="sm" className="text-primary">
+                      <Play className="h-8 w-8" />
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
 
             {(wish.type === "photo" || wish.type === "post") && (
               <div className="mb-4">
-                <div className="aspect-square bg-surface rounded-lg flex items-center justify-center mb-3">
-                  <Image className="h-12 w-12 text-muted-foreground" />
-                </div>
+                {isFileBased ? (
+                  <div className="relative aspect-square bg-surface rounded-lg overflow-hidden">
+                    <img 
+                      src={wish.file_url} 
+                      alt="Uploaded image"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="aspect-square bg-surface rounded-lg flex items-center justify-center mb-3">
+                    <Image className="h-12 w-12 text-muted-foreground" />
+                  </div>
+                )}
               </div>
             )}
 
             {wish.type === "voice" && (
               <div className="mb-4">
-                <div className="bg-surface rounded-lg p-4 flex items-center justify-center">
-                  <div className="flex items-center gap-3">
-                    <Music className="h-6 w-6 text-primary" />
-                    <span className="text-sm text-muted-foreground">Voice Message</span>
-                    <Button variant="ghost" size="sm">
-                      <Play className="h-4 w-4" />
-                    </Button>
+                {isFileBased ? (
+                  <div className="bg-surface rounded-lg p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Music className="h-6 w-6 text-primary" />
+                      <div className="flex-1">
+                        <div className="text-sm font-medium">Voice Message</div>
+                        <div className="text-xs text-muted-foreground">
+                          {wish.duration && formatDuration(wish.duration)} • {wish.file_size && formatFileSize(wish.file_size)}
+                        </div>
+                      </div>
+                      <Button variant="ghost" size="sm">
+                        <Play className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <audio 
+                      controls 
+                      className="w-full h-8"
+                      src={wish.file_url}
+                    />
                   </div>
-                </div>
+                ) : (
+                  <div className="bg-surface rounded-lg p-4 flex items-center justify-center">
+                    <div className="flex items-center gap-3">
+                      <Music className="h-6 w-6 text-primary" />
+                      <span className="text-sm text-muted-foreground">Voice Message</span>
+                      <Button variant="ghost" size="sm">
+                        <Play className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -170,6 +254,9 @@ export const WishesWall = () => {
             <div className="text-xs text-muted-foreground mb-4 space-y-1">
               {wish.org && <div>{wish.org}</div>}
               {wish.city && <div>{wish.city}</div>}
+              {isFileBased && wish.file_size && (
+                <div>File size: {formatFileSize(wish.file_size)}</div>
+              )}
             </div>
 
             {/* Actions */}
@@ -188,7 +275,7 @@ export const WishesWall = () => {
                 <Button variant="ghost" size="sm">
                   <Share className="h-4 w-4" />
                 </Button>
-                {wish.url && (
+                {(wish.url || wish.file_url) && (
                   <Button variant="ghost" size="sm">
                     <ExternalLink className="h-4 w-4" />
                   </Button>

@@ -19,12 +19,17 @@ export type Database = {
           city: string | null
           contact: string | null
           created_at: string
+          duration: number | null
+          file_size: number | null
+          file_type: string | null
+          file_url: string | null
           id: string
           message: string | null
           name: string
           org: string | null
           provider: string | null
           status: string
+          thumbnail_url: string | null
           type: string
           updated_at: string
           url: string | null
@@ -33,12 +38,17 @@ export type Database = {
           city?: string | null
           contact?: string | null
           created_at?: string
+          duration?: number | null
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string | null
           id?: string
           message?: string | null
           name: string
           org?: string | null
           provider?: string | null
           status?: string
+          thumbnail_url?: string | null
           type: string
           updated_at?: string
           url?: string | null
@@ -47,12 +57,17 @@ export type Database = {
           city?: string | null
           contact?: string | null
           created_at?: string
+          duration?: number | null
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string | null
           id?: string
           message?: string | null
           name?: string
           org?: string | null
           provider?: string | null
           status?: string
+          thumbnail_url?: string | null
           type?: string
           updated_at?: string
           url?: string | null

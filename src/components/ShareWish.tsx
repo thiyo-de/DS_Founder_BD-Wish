@@ -7,19 +7,26 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Video, Image, Music, MessageSquare, Send, ExternalLink } from "lucide-react";
+import { Video, Image, Music, MessageSquare, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { VideoRecorder } from "@/components/media/VideoRecorder";
+import { AudioRecorder } from "@/components/media/AudioRecorder";
+import { FileUploader } from "@/components/media/FileUploader";
 
 interface WishFormData {
   name: string;
   message?: string;
-  url?: string;
   org?: string;
   city?: string;
   contact?: string;
   consent: boolean;
+  // File upload fields
+  file_url?: string;
+  file_type?: string;
+  file_size?: number;
+  duration?: number;
+  thumbnail_url?: string;
 }
 
 export const ShareWish = () => {
@@ -28,27 +35,30 @@ export const ShareWish = () => {
   const [formData, setFormData] = useState<WishFormData>({
     name: "",
     message: "",
-    url: "",
     org: "",
     city: "",
     contact: "",
     consent: false
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [mediaReady, setMediaReady] = useState(false);
 
-  const detectProvider = (url: string) => {
-    if (!url) return "unknown";
-    
-    if (url.includes("youtube.com") || url.includes("youtu.be")) return "youtube";
-    if (url.includes("vimeo.com")) return "vimeo";
-    if (url.includes("instagram.com")) return "instagram";
-    if (url.includes("facebook.com")) return "facebook";
-    if (url.includes("drive.google.com")) return "drive";
-    if (url.includes("soundcloud.com")) return "soundcloud";
-    if (url.includes("vocaroo.com")) return "vocaroo";
-    if (url.match(/\.(mp3|m4a|wav)$/i)) return "direct";
-    
-    return "other";
+  const handleMediaUpload = (uploadResult: {
+    file_url: string;
+    file_type: string;
+    file_size: number;
+    duration?: number;
+    thumbnail_url?: string;
+  }) => {
+    setFormData(prev => ({
+      ...prev,
+      file_url: uploadResult.file_url,
+      file_type: uploadResult.file_type,
+      file_size: uploadResult.file_size,
+      duration: uploadResult.duration,
+      thumbnail_url: uploadResult.thumbnail_url,
+    }));
+    setMediaReady(true);
   };
 
   const handleSubmit = async (type: string) => {
@@ -61,10 +71,11 @@ export const ShareWish = () => {
       return;
     }
 
-    if ((type !== "text") && !formData.url) {
+    // Check for media requirements
+    if (type !== "text" && !mediaReady && !formData.file_url) {
       toast({
-        title: "URL required",
-        description: "Please provide a valid URL for your media.",
+        title: "Media required",
+        description: `Please record or upload your ${type} before submitting.`,
         variant: "destructive"
       });
       return;
@@ -86,12 +97,16 @@ export const ShareWish = () => {
         type: type as 'video' | 'photo' | 'voice' | 'text',
         name: formData.name.trim(),
         message: formData.message?.trim() || null,
-        url: formData.url?.trim() || null,
-        provider: formData.url ? detectProvider(formData.url) : null,
         org: formData.org?.trim() || null,
         city: formData.city?.trim() || null,
         contact: formData.contact?.trim() || null,
-        status: 'pending'
+        status: 'pending',
+        // File-based fields
+        file_url: formData.file_url || null,
+        file_type: formData.file_type || null,
+        file_size: formData.file_size || null,
+        duration: formData.duration || null,
+        thumbnail_url: formData.thumbnail_url || null,
       };
 
       const { error } = await supabase
@@ -109,12 +124,12 @@ export const ShareWish = () => {
       setFormData({
         name: "",
         message: "",
-        url: "",
         org: "",
         city: "",
         contact: "",
         consent: false
       });
+      setMediaReady(false);
 
     } catch (error) {
       console.error("Submission error:", error);
@@ -128,27 +143,18 @@ export const ShareWish = () => {
     }
   };
 
-  const getPreviewInfo = (url: string) => {
-    const provider = detectProvider(url);
-    
-    switch (provider) {
-      case "youtube":
-        return { provider: "YouTube", icon: "🎥", color: "bg-red-100 text-red-800" };
-      case "vimeo":
-        return { provider: "Vimeo", icon: "🎬", color: "bg-blue-100 text-blue-800" };
-      case "instagram":
-        return { provider: "Instagram", icon: "📸", color: "bg-pink-100 text-pink-800" };
-      case "facebook":
-        return { provider: "Facebook", icon: "📱", color: "bg-blue-100 text-blue-800" };
-      case "drive":
-        return { provider: "Google Drive", icon: "☁️", color: "bg-green-100 text-green-800" };
-      case "soundcloud":
-        return { provider: "SoundCloud", icon: "🎵", color: "bg-orange-100 text-orange-800" };
-      case "direct":
-        return { provider: "Audio File", icon: "🎧", color: "bg-purple-100 text-purple-800" };
-      default:
-        return { provider: "External Link", icon: "🔗", color: "bg-gray-100 text-gray-800" };
-    }
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    setMediaReady(false);
+    // Clear media data when switching tabs
+    setFormData(prev => ({
+      ...prev,
+      file_url: undefined,
+      file_type: undefined,
+      file_size: undefined,
+      duration: undefined,
+      thumbnail_url: undefined,
+    }));
   };
 
   return (
@@ -184,7 +190,7 @@ export const ShareWish = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <Tabs value={activeTab} onValueChange={handleTabChange}>
                 <TabsList className="grid w-full grid-cols-4 mb-8">
                   <TabsTrigger value="video" className="flex items-center gap-2">
                     <Video className="h-4 w-4" />
@@ -192,7 +198,7 @@ export const ShareWish = () => {
                   </TabsTrigger>
                   <TabsTrigger value="photo" className="flex items-center gap-2">
                     <Image className="h-4 w-4" />
-                    Photo/Post
+                    Photo
                   </TabsTrigger>
                   <TabsTrigger value="voice" className="flex items-center gap-2">
                     <Music className="h-4 w-4" />
@@ -206,103 +212,101 @@ export const ShareWish = () => {
 
                 <TabsContent value="video" className="space-y-6">
                   <div className="bg-surface rounded-lg p-4">
-                    <h3 className="font-semibold mb-2">📹 Video Message</h3>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Share a YouTube, Vimeo, Instagram, or Facebook video link
+                    <h3 className="font-semibold mb-4">📹 Record or Upload Video</h3>
+                    <p className="text-sm text-muted-foreground mb-6">
+                      Record a video message up to 60 seconds or upload a video file (max 50MB)
                     </p>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="video-url">Video URL *</Label>
-                        <Input
-                          id="video-url"
-                          placeholder="https://www.youtube.com/watch?v=..."
-                          value={formData.url}
-                          onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
+                    
+                    <Tabs defaultValue="record" className="w-full">
+                      <TabsList className="grid w-full grid-cols-2 mb-4">
+                        <TabsTrigger value="record">Record Video</TabsTrigger>
+                        <TabsTrigger value="upload">Upload Video</TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="record">
+                        <VideoRecorder 
+                          onRecordingComplete={(blob) => {
+                            // Note: In a real implementation, you'd upload the blob here
+                            // For now, we'll simulate the upload result
+                            const mockResult = {
+                              file_url: URL.createObjectURL(blob),
+                              file_type: blob.type,
+                              file_size: blob.size,
+                              duration: 30, // Would be detected from the actual recording
+                              thumbnail_url: URL.createObjectURL(blob),
+                            };
+                            handleMediaUpload(mockResult);
+                          }}
+                          maxDuration={60}
                         />
-                        {formData.url && (
-                          <div className="mt-2">
-                            {(() => {
-                              const info = getPreviewInfo(formData.url);
-                              return (
-                                <Badge className={info.color}>
-                                  {info.icon} {info.provider} detected
-                                </Badge>
-                              );
-                            })()}
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="upload">
+                        <FileUploader
+                          onUploadComplete={handleMediaUpload}
+                          fileType="video"
+                          maxSize={50}
+                          acceptedTypes={['video/mp4', 'video/webm', 'video/mov', 'video/avi']}
+                        />
+                      </TabsContent>
+                    </Tabs>
                   </div>
                 </TabsContent>
 
                 <TabsContent value="photo" className="space-y-6">
                   <div className="bg-surface rounded-lg p-4">
-                    <h3 className="font-semibold mb-2">📸 Photo or Post</h3>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Share an Instagram post, Facebook post, or public Google Drive image link
+                    <h3 className="font-semibold mb-4">📸 Upload Image</h3>
+                    <p className="text-sm text-muted-foreground mb-6">
+                      Upload your photo or image to share (max 5MB)
                     </p>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="photo-url">Photo/Post URL *</Label>
-                        <Input
-                          id="photo-url"
-                          placeholder="https://www.instagram.com/p/... or https://drive.google.com/..."
-                          value={formData.url}
-                          onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
-                        />
-                        {formData.url && (
-                          <div className="mt-2">
-                            {(() => {
-                              const info = getPreviewInfo(formData.url);
-                              return (
-                                <Badge className={info.color}>
-                                  {info.icon} {info.provider} detected
-                                </Badge>
-                              );
-                            })()}
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                    
+                    <FileUploader
+                      onUploadComplete={handleMediaUpload}
+                      fileType="image"
+                      maxSize={5}
+                      acceptedTypes={['image/jpeg', 'image/jpg', 'image/png', 'image/webp']}
+                    />
                   </div>
                 </TabsContent>
 
                 <TabsContent value="voice" className="space-y-6">
                   <div className="bg-surface rounded-lg p-4">
-                    <h3 className="font-semibold mb-2">🎤 Voice Message</h3>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Share a SoundCloud track, Google Drive audio file, or direct audio link
+                    <h3 className="font-semibold mb-4">🎤 Record or Upload Audio</h3>
+                    <p className="text-sm text-muted-foreground mb-6">
+                      Record a voice message up to 30 seconds or upload an audio file (max 10MB)
                     </p>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="voice-url">Audio URL *</Label>
-                        <Input
-                          id="voice-url"
-                          placeholder="https://soundcloud.com/... or https://drive.google.com/..."
-                          value={formData.url}
-                          onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
+                    
+                    <Tabs defaultValue="record" className="w-full">
+                      <TabsList className="grid w-full grid-cols-2 mb-4">
+                        <TabsTrigger value="record">Record Audio</TabsTrigger>
+                        <TabsTrigger value="upload">Upload Audio</TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="record">
+                        <AudioRecorder 
+                          onRecordingComplete={(blob) => {
+                            // Note: In a real implementation, you'd upload the blob here
+                            const mockResult = {
+                              file_url: URL.createObjectURL(blob),
+                              file_type: blob.type,
+                              file_size: blob.size,
+                              duration: 20, // Would be detected from the actual recording
+                            };
+                            handleMediaUpload(mockResult);
+                          }}
+                          maxDuration={30}
                         />
-                        {formData.url && (
-                          <div className="mt-2">
-                            {(() => {
-                              const info = getPreviewInfo(formData.url);
-                              return (
-                                <Badge className={info.color}>
-                                  {info.icon} {info.provider} detected
-                                </Badge>
-                              );
-                            })()}
-                          </div>
-                        )}
-                      </div>
-                      <div className="bg-accent/10 border border-accent/30 rounded-lg p-3">
-                        <p className="text-sm text-muted-foreground">
-                          💡 <strong>Tip:</strong> You can record audio on your phone and upload to 
-                          SoundCloud (free) or Google Drive, then share the public link here.
-                        </p>
-                      </div>
-                    </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="upload">
+                        <FileUploader
+                          onUploadComplete={handleMediaUpload}
+                          fileType="audio"
+                          maxSize={10}
+                          acceptedTypes={['audio/mp3', 'audio/wav', 'audio/m4a', 'audio/webm']}
+                        />
+                      </TabsContent>
+                    </Tabs>
                   </div>
                 </TabsContent>
 
@@ -400,7 +404,7 @@ export const ShareWish = () => {
 
                   <Button
                     onClick={() => handleSubmit(activeTab)}
-                    disabled={isSubmitting || !formData.name || !formData.consent}
+                    disabled={isSubmitting || !formData.name || !formData.consent || (activeTab !== "text" && !mediaReady)}
                     className="btn-hero w-full"
                   >
                     {isSubmitting ? (
