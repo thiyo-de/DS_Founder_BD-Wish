@@ -4,10 +4,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckCircle, XCircle, Search, Video, Image, Music, MessageSquare, Calendar } from "lucide-react";
+import { CheckCircle, XCircle, Search, Video, Image, Music, MessageSquare, Calendar, Trash2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 type Submission = {
   id: string;
@@ -25,6 +36,8 @@ type Submission = {
 const Admin = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTab, setSelectedTab] = useState("dashboard");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [submissionToDelete, setSubmissionToDelete] = useState<Submission | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -67,8 +80,47 @@ const Admin = () => {
     }
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('submissions')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['all-submissions'] });
+      queryClient.invalidateQueries({ queryKey: ['approved-submissions'] });
+      setDeleteDialogOpen(false);
+      setSubmissionToDelete(null);
+      toast({
+        title: "Submission deleted",
+        description: "The wish has been permanently deleted."
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete submission",
+        variant: "destructive"
+      });
+    }
+  });
+
   const handleStatusUpdate = (id: string, newStatus: "approved" | "rejected") => {
     updateStatusMutation.mutate({ id, status: newStatus });
+  };
+
+  const handleDeleteClick = (submission: Submission) => {
+    setSubmissionToDelete(submission);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (submissionToDelete) {
+      deleteMutation.mutate(submissionToDelete.id);
+    }
   };
 
   const filteredSubmissions = submissions.filter(sub =>
@@ -243,30 +295,43 @@ const Admin = () => {
                         </div>
                       </div>
                       
-                      {submission.status === "pending" && (
-                        <div className="flex gap-2 ml-4">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleStatusUpdate(submission.id, "approved")}
-                            disabled={updateStatusMutation.isPending}
-                            className="text-green-600 border-green-600 hover:bg-green-50"
-                          >
-                            <CheckCircle className="h-4 w-4 mr-1" />
-                            Approve
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleStatusUpdate(submission.id, "rejected")}
-                            disabled={updateStatusMutation.isPending}
-                            className="text-destructive border-destructive hover:bg-destructive/10"
-                          >
-                            <XCircle className="h-4 w-4 mr-1" />
-                            Reject
-                          </Button>
-                        </div>
-                      )}
+                      <div className="flex gap-2 ml-4">
+                        {submission.status === "pending" && (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleStatusUpdate(submission.id, "approved")}
+                              disabled={updateStatusMutation.isPending}
+                              className="text-green-600 border-green-600 hover:bg-green-50"
+                            >
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                              Approve
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleStatusUpdate(submission.id, "rejected")}
+                              disabled={updateStatusMutation.isPending}
+                              className="text-destructive border-destructive hover:bg-destructive/10"
+                            >
+                              <XCircle className="h-4 w-4 mr-1" />
+                              Reject
+                            </Button>
+                          </>
+                        )}
+                        
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDeleteClick(submission)}
+                          disabled={deleteMutation.isPending}
+                          className="text-destructive border-destructive hover:bg-destructive/10"
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          Delete
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -295,6 +360,28 @@ const Admin = () => {
             )}
           </TabsContent>
         </Tabs>
+
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Submission</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to permanently delete this wish from "{submissionToDelete?.name}"? 
+                This action cannot be undone and will remove it from the Birthday Wishes Wall.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteConfirm}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                disabled={deleteMutation.isPending}
+              >
+                {deleteMutation.isPending ? "Deleting..." : "Delete"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
