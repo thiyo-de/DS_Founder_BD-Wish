@@ -53,7 +53,6 @@ export const useMediaRecorder = ({
         ? ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm']
         : ['audio/webm', 'audio/mp4'];
       for (const type of candidates) {
-        // @ts-expect-error runtime support check
         if (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported?.(type)) {
           options.mimeType = type;
           break;
@@ -96,7 +95,11 @@ export const useMediaRecorder = ({
         setDuration(prev => {
           const newDuration = prev + 0.1;
           if (newDuration >= maxDuration) {
-            stopRecording();
+            if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+              mediaRecorderRef.current.stop();
+              setIsRecording(false);
+              setIsPaused(false);
+            }
             return maxDuration;
           }
           return newDuration;
@@ -107,7 +110,7 @@ export const useMediaRecorder = ({
       console.error('Error starting recording:', err);
       setError('Failed to start recording. Please check your camera/microphone permissions.');
     }
-  }, [maxDuration, mediaType, stopRecording]);
+  }, [maxDuration, mediaType]);
 
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && isRecording) {
@@ -144,14 +147,18 @@ export const useMediaRecorder = ({
         setDuration(prev => {
           const newDuration = prev + 0.1;
           if (newDuration >= maxDuration) {
-            stopRecording();
+            if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+              mediaRecorderRef.current.stop();
+              setIsRecording(false);
+              setIsPaused(false);
+            }
             return maxDuration;
           }
           return newDuration;
         });
       }, 100);
     }
-  }, [isRecording, isPaused, maxDuration, stopRecording]);
+  }, [isRecording, isPaused, maxDuration]);
 
   const resetRecording = useCallback(() => {
     if (timerRef.current) {

@@ -91,7 +91,7 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
 
       <div className="flex items-center justify-center space-x-2">
         {!isRecording && !recordedBlob && (
-          <Button onClick={startRecording} className="bg-red-500 hover:bg-red-600 text-white">
+          <Button onClick={() => startRecording()} className="bg-red-500 hover:bg-red-600 text-white">
             <Mic className="h-4 w-4 mr-2" />
             Start Recording
           </Button>
