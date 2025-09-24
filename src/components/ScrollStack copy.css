@@ -1,0 +1,71 @@
+:root {
+  --brand-yellow: #FAF219;
+  --brand-blue: #1E1EC2;
+  --stack-pos: 20%; /* fallback; About sets this via inline style */
+}
+
+/* host scroller (uses window scroll; no nested scrollbars) */
+.scroll-stack-scroller {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  transform: translateZ(0);
+  will-change: scroll-position;
+}
+
+/* rhythm & breathing room */
+.scroll-stack-inner {
+  padding: 8vh 1rem 16rem;
+  min-height: 100vh;
+}
+
+/* Clean modern card */
+.scroll-stack-card {
+  position: relative;
+  z-index: 2; /* keep above sticky line */
+  width: 100%;
+  margin: 24px 0;
+  padding: 1.25rem;
+  border-radius: 22px;
+  box-sizing: border-box;
+
+  background: #fff;
+  border: 1px solid #ececec;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
+
+  transform-origin: top center;
+  will-change: transform, filter;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+@media (min-width: 640px) {
+  .scroll-stack-card { margin: 26px 0; padding: 1.5rem; border-radius: 24px; }
+}
+@media (min-width: 1024px) {
+  .scroll-stack-card { margin: 30px 0; padding: 1.75rem; border-radius: 26px; }
+  .scroll-stack-card:hover { transform: translateY(-2px); }
+}
+
+.scroll-stack-end { width: 100%; height: 1px; }
+
+/* Sticky timeline — solid brand blue (no gradient) */
+.scroll-stack-timeline {
+  position: sticky;
+  left: 0; right: 0;
+  top: var(--stack-pos);
+  height: 3px;
+  background: var(--brand-blue);
+  opacity: 0.7;
+  border-radius: 999px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 1023px) {
+  .scroll-stack-timeline { height: 2px; opacity: 0.8; }
+}

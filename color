@@ -1,0 +1,17 @@
+ --brand-blue: #0606bc;
+            --brand-yellow: #faf200;
+            --coral-accent: #FF6B6B;
+            --light-gray: #F5F5F5;
+            --deep-navy: #0A0A2E;
+            --cool-gray: #E8E8ED;
+            --off-white: #FEFDF8;
+            --dark-charcoal: #333333;
+
+:default = act as a senior ui / ux designer to make this look good and fix the ui/ux issue like mobile resposive issue,overlap and overflow and mind that make look good and color full using this color pallete = {  --brand-blue: #0606bc important;
+            --brand-yellow: #faf200 important;
+            --coral-accent: #FF6B6B  ;
+            --light-gray: #F5F5F5;
+            --deep-navy: #0A0A2E;
+            --cool-gray: #E8E8ED;
+            --off-white: #FEFDF8;
+            --dark-charcoal: #333333; }

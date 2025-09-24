@@ -1,0 +1,345 @@
+/* ===== Brand-local tokens ===== */
+:root {
+  --brand-blue: #0606bc;
+  --brand-yellow: #faf200;
+
+  --cream-0: #fffdf5;
+  --cream-1: #fff8d8;
+
+  --headline-shift-desktop: -16vh;
+  --headline-shift-mobile: -55vh;
+
+  --fade-start: 64%;
+
+  --radius: 14px;
+  --elev-1: 0 12px 24px rgba(6, 6, 188, 0.06), 0 6px 16px rgba(0, 0, 0, 0.06);
+  --elev-2: 0 18px 36px rgba(6, 6, 188, 0.08), 0 10px 24px rgba(0, 0, 0, 0.08);
+
+  /* Rounded soft-blur pill tuning */
+  --pill-w: clamp(340px, 42vmin, 680px);
+  --pill-h: clamp(180px, 22vmin, 320px);
+  --pill-blur: 48px;
+  --pill-opacity: 0.35;
+}
+
+/* ===== Optional sitewide bg (disabled) ===== */
+.page-bg { display: none; }
+
+/* ==== SECTION (with soft gradient) ==== */
+.hero-slim {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  background: linear-gradient(
+      180deg,
+      rgba(250, 242, 0, 0.08) 0%,
+      rgba(6, 6, 188, 0.06) 100%
+    ),
+    #ffffff;
+}
+
+/* faint center glow under portrait (optional) */
+.hero-slim::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  transform: translate(-50%, -50%);
+  width: min(70vw, 900px);
+  height: min(70vw, 900px);
+  background: radial-gradient(
+      ellipse at center,
+      rgba(250, 242, 0, 0.12),
+      rgba(250, 242, 0, 0) 60%
+    ),
+    radial-gradient(
+      ellipse at center,
+      rgba(6, 6, 188, 0.06),
+      rgba(6, 6, 188, 0) 65%
+    );
+  filter: blur(8px);
+  z-index: 0;
+}
+
+.hero-slim::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.03);
+  pointer-events: none;
+}
+
+/* ==== ROUNDED SOFT-BLUR PILLS (corner glows) ==== */
+.blur-pill {
+  position: absolute;
+  width: var(--pill-w);
+  height: var(--pill-h);
+  border-radius: 9999px;
+  filter: blur(var(--pill-blur));
+  opacity: var(--pill-opacity);
+  z-index: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+  animation: pillFloat 36s ease-in-out infinite;
+}
+.blur-pill--tr {
+  right: -18vmin; top: -14vmin;
+  background: radial-gradient(120% 100% at 20% 50%, rgba(6, 6, 188, 0.45), transparent 60%),
+    linear-gradient(90deg, rgba(6, 6, 188, 0.25), rgba(198, 166, 255, 0.25));
+  animation-delay: 3s;
+}
+.blur-pill--bl {
+  left: -20vmin; bottom: -16vmin;
+  background: radial-gradient(130% 100% at 80% 50%, rgba(250, 242, 0, 0.35), transparent 60%),
+    linear-gradient(90deg, rgba(0, 184, 122, 0.25), rgba(255, 79, 100, 0.18));
+  animation-delay: 9s;
+}
+.blur-pill--tl {
+  left: -20vmin; top: -20vmin;
+  background: radial-gradient(130% 100% at 80% 50%, rgba(250, 242, 0, 0.35), transparent 60%),
+    linear-gradient(90deg, rgba(255, 200, 0, 0.25), rgba(255, 149, 0, 0.18));
+  animation-delay: 6s;
+}
+.blur-pill--br {
+  right: -20vmin; bottom: -20vmin;
+  background: radial-gradient(120% 100% at 20% 50%, rgba(6, 6, 188, 0.45), transparent 60%),
+    linear-gradient(90deg, rgba(80, 120, 255, 0.25), rgba(198, 166, 255, 0.25));
+  animation-delay: 12s;
+}
+@keyframes pillFloat {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(2vmin, -1vmin, 0) scale(1.02); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+/* ==== BIG BACKGROUND HEADLINE ==== */
+.bg-headline {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  pointer-events: none; z-index: 0;
+}
+.bg-headline h1 {
+  font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  line-height: 1; letter-spacing: -0.02em; text-transform: uppercase;
+  font-weight: 800; color: #0606bc; opacity: 0.12; text-align: center;
+  transform: translateY(var(--headline-shift-desktop));
+}
+.bg-headline .line { display: block; font-size: clamp(32px, 9.2vw, 112px); }
+.bg-headline h1 p {
+  max-width: min(820px, 72vw);
+  margin: clamp(8px, 1.2vw, 14px) auto 0;
+  padding: 0 0.25rem;
+  font-family: "Satoshi", ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(12px, 1.25vw, 16px);
+  line-height: 1.35; font-weight: 500;
+  color: rgba(58, 58, 58, 0.85); text-transform: none; opacity: 0.9;
+}
+@media (max-width: 900px) {
+  .bg-headline h1 { transform: translateY(var(--headline-shift-mobile)); }
+}
+
+/* ==== STAGE LAYOUT ==== */
+.hero-stage {
+  position: relative; z-index: 1;
+  min-height: clamp(560px, 70vh, 760px);
+  display: grid; place-items: center;
+}
+@media (min-width: 1024px) {
+  .hero-stage {
+    grid-template-columns: minmax(280px, 360px) 1fr minmax(220px, 320px);
+    align-items: center; gap: clamp(16px, 3vw, 28px);
+  }
+  .left-stack { justify-self: start; }
+  .right-stack { justify-self: end; }
+}
+
+/* ==== CARDS / ELEVATION ==== */
+.card { background: #fff; border-radius: var(--radius); }
+.elev-1 { box-shadow: var(--elev-1); }
+.elev-2 { box-shadow: var(--elev-2); }
+.hover-lift { transition: transform 0.25s ease, box-shadow 0.25s ease; will-change: transform, box-shadow; }
+.hover-lift:hover { transform: translateY(-2px); }
+
+/* ==== INFO CARD ==== */
+.info-card { width: clamp(260px, 28vw, 360px); padding: 16px; }
+.info-card.text-center { text-align: center; }
+.info-title {
+  font-family: "Satoshi", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 800; color: var(--brand-blue); letter-spacing: -0.01em;
+  font-size: clamp(14px, 1.5vw, 16px); margin-bottom: 6px;
+}
+.info-text { color: #3a3a3a; font-size: 0.95rem; line-height: 1.4; margin: 0 0 12px; }
+
+/* md metrics (hidden on lg+) */
+.metrics-row { display: flex; gap: 12px; margin: 0 0 12px; flex-wrap: wrap; }
+.metrics-row.justify-center { justify-content: center; }
+
+/* Buttons row */
+.info-cta { display: flex; gap: 12px; flex-wrap: wrap; }
+.info-cta.justify-center { justify-content: center; }
+.info-cta .btn-hero, .info-cta .btn-hero-outline { white-space: nowrap; }
+
+/* ==== PORTRAIT ==== */
+.portrait-col { display: flex; justify-content: center; }
+.portrait-wrap {
+  position: relative; width: clamp(14rem, 34vw, 22rem);
+  margin-inline: auto; margin-top: clamp(0.5rem, 2vw, 1rem);
+}
+.portrait-img { width: 100%; height: auto; object-fit: contain; display: block; }
+.fade-bottom {
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) var(--fade-start), rgba(0,0,0,0) 100%);
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,1) var(--fade-start), rgba(0,0,0,0) 100%);
+  -webkit-mask-size: 100% 100%; mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+}
+
+/* Floating chips (lg+) */
+.portrait-chip {
+  position: absolute; display: none;
+  background: #fff; border-radius: 10px; box-shadow: var(--elev-1);
+  padding: 10px 12px; gap: 12px; align-items: center;
+}
+.portrait-chip .chip-icon {
+  width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center;
+}
+.portrait-chip .chip-meta { display: flex; flex-direction: column; }
+.portrait-chip .chip-label { font-size: 0.72rem; color: #6b7280; }
+.portrait-chip .chip-value { font-family: "Satoshi", ui-sans-serif; font-size: 1.05rem; color: #0606bc; }
+@media (min-width: 1024px) {
+  .portrait-chip { display: flex; }
+  .chip-left { left: clamp(-11rem, -12vw, -5rem); bottom: 16%; }
+  .chip-right { right: clamp(-11rem, -12vw, -5rem); top: 10%; }
+}
+
+/* ==== LOGO (for reference classes) ==== */
+.logo-card { width: clamp(220px, 24vw, 320px); padding: 18px 18px 14px; display: grid; place-items: center; text-align: center; }
+.logo-wrap { display: grid; place-items: center; width: 100%; }
+.logo-caption { margin-top: 8px; font-size: 0.9rem; color: #3a3a3a; }
+
+/* ==== MOBILE REFINEMENTS ==== */
+.metrics-row-mobile {
+  display: grid; place-items: center; row-gap: 12px; margin: 4px 0 2px;
+}
+.metrics-row-mobile .metric-chip {
+  width: min(340px, 88vw); display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px; background: #fff; border-radius: 10px; box-shadow: var(--elev-1);
+}
+.metric-chip .metric-icon {
+  width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center;
+}
+.metric-chip .metric-meta { display: flex; flex-direction: column; }
+.metric-chip .metric-label { font-size: 0.72rem; color: #6b7280; }
+.metric-chip .metric-value { font-family: "Satoshi", ui-sans-serif; font-size: 1.05rem; color: #0606bc; }
+
+.info-cta.info-cta--mobile { justify-content: center; }
+.info-cta.info-cta--mobile .btn-hero, .info-cta.info-cta--mobile .btn-hero-outline {
+  flex: 1 0 44%; max-width: 180px; min-width: 140px;
+}
+.logo-card--mobile { width: min(560px, 92vw); margin-inline: auto; }
+
+@media (max-width: 900px) { .info-cta { justify-content: center; } }
+
+/* ===== Reduced motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  .blur-pill { animation: none !important; }
+}
+
+/* ===== 85th Birthday Block (mobile-first, simplified) ===== */
+.birthday-card {
+  width: min(560px, 92vw);
+  margin-inline: auto;
+  position: relative;
+  overflow: hidden;
+  border-radius: calc(var(--radius) + 4px);
+  background:
+    radial-gradient(120% 120% at 80% 0%, rgba(250, 242, 0, 0.15), transparent 60%),
+    radial-gradient(120% 120% at 0% 100%, rgba(6, 6, 188, 0.12), transparent 60%),
+    #ffffff;
+
+  /* soft breathing shadow */
+  animation: cardBreathe 6s ease-in-out infinite;
+}
+@keyframes cardBreathe {
+  0%   { box-shadow: var(--elev-1); }
+  50%  { box-shadow: 0 16px 40px rgba(6, 6, 188, 0.10), 0 10px 24px rgba(0, 0, 0, 0.08); }
+  100% { box-shadow: var(--elev-1); }
+}
+
+/* Ambient rotating glow (very subtle) */
+.birthday-card::after {
+  content: "";
+  position: absolute; inset: -40%;
+  background: conic-gradient(from 0deg, rgba(6,6,188,0.08), rgba(250,242,0,0.08), rgba(6,6,188,0.08));
+  filter: blur(36px);
+  animation: birthdayGlow 14s linear infinite;
+  pointer-events: none; z-index: 0;
+}
+@keyframes birthdayGlow {
+  0% { transform: rotate(0deg) scale(1.02); }
+  100% { transform: rotate(360deg) scale(1.02); }
+}
+
+.birthday-badge { position: relative; display: inline-flex; align-items: flex-start; gap: 6px; z-index: 1; }
+.birthday-number {
+  font-family: "Satoshi", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 900; letter-spacing: -0.02em; line-height: 0.9;
+  font-size: clamp(64px, 22vw, 144px);
+  background: linear-gradient(45deg, var(--brand-yellow) 0%, #ffe680 20%, var(--brand-blue) 80%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  text-shadow: 0 6px 18px rgba(6, 6, 188, 0.18);
+  animation: sheenSlow 9s ease-in-out infinite alternate, floatSoft 8s ease-in-out infinite;
+}
+@keyframes sheenSlow {
+  0%   { background-position: 0% 50%; filter: drop-shadow(0 6px 18px rgba(6,6,188,0.18)); }
+  100% { background-position: 100% 50%; filter: drop-shadow(0 10px 24px rgba(6,6,188,0.22)); }
+}
+@keyframes floatSoft { 0% { transform: translateY(0px); } 50% { transform: translateY(-6px); } 100% { transform: translateY(0px); } }
+
+.birthday-suffix {
+  font-family: "Satoshi", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 800; color: var(--brand-blue);
+  margin-top: clamp(12px, 2.2vw, 16px);
+  font-size: clamp(18px, 6vw, 28px);
+  text-shadow: 0 2px 10px rgba(6, 6, 188, 0.12);
+}
+
+.birthday-title {
+  margin-top: 10px;
+  font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em;
+  color: #0b0b54; font-size: clamp(22px, 7vw, 52px);
+  position: relative; z-index: 1;
+}
+/* Remove underline */
+.birthday-title::after { display: none !important; }
+
+/* Strip any leftover caption/CTA UI globally */
+.birthday-caption, .birthday-cta { display: none !important; }
+
+@media (min-width: 768px) {
+  .birthday-card {
+    padding-inline: clamp(20px, 3vw, 28px) !important;
+    padding-block: clamp(20px, 3vw, 28px) !important;
+  }
+}
+
+/* Desktop sizing tweaks for the 85th block on right column */
+.birthday-card--lg {
+  width: clamp(240px, 24vw, 340px);
+  margin-inline: 0;
+}
+.birthday-number--lg { font-size: clamp(88px, 9vw, 180px); }
+.birthday-suffix--lg { font-size: clamp(18px, 2.2vw, 32px); margin-top: clamp(10px, 1.2vw, 14px); }
+.birthday-title--lg { font-size: clamp(22px, 2.2vw, 40px); }
+
+@media (min-width: 768px) {
+  .birthday-card--lg::after { filter: blur(40px); opacity: 0.9; }
+}
+
+/* Reduced motion accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .birthday-card { animation: none !important; }
+  .birthday-number { animation: none !important; }
+  .birthday-card::after { animation: none !important; }
+}

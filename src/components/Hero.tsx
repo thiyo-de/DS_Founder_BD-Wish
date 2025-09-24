@@ -1,215 +1,228 @@
-import { motion } from "framer-motion";
+import { MotionConfig, motion, useReducedMotion } from "framer-motion";
+import { Play, HeartPulse, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Calendar, Sparkles, Play, User } from "lucide-react";
+import FOUNDER_IMAGE from "../Assets/Iyya.png";
+import "./Hero.css";
+import B_Logo from "./Asset 1.svg";
 
-const scrollToSection = (href: string) => {
-  const element = document.querySelector(href);
-  element?.scrollIntoView({ behavior: "smooth" });
+type HeroProps = { imageSrc?: string; imageAlt?: string };
+
+const easeOutExpo = [0.22, 1, 0.36, 1] as const;
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 10 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: easeOutExpo } },
 };
 
-// Calculate days until celebration
-const celebrationDate = new Date('2024-03-15');
-const today = new Date();
-const daysUntil = Math.max(0, Math.ceil((celebrationDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)));
+const stagger = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08, delayChildren: 0.12 } },
+};
 
-export const Hero = () => {
+export const Hero = ({
+  imageSrc,
+  imageAlt = "Founder portrait",
+}: HeroProps) => {
+  const prefersReducedMotion = useReducedMotion();
+  const src = imageSrc ?? FOUNDER_IMAGE;
+
   return (
-    <section className="relative min-h-screen flex items-center justify-center gradient-hero overflow-hidden">
-      {/* Animated Background Particles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(20)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-2 h-2 bg-accent/20 rounded-full"
-            initial={{ 
-              x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1200), 
-              y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800),
-              scale: 0 
-            }}
-            animate={{ 
-              y: [null, -100, -200],
-              scale: [0, 1, 0],
-              opacity: [0, 0.6, 0]
-            }}
-            transition={{
-              duration: 8 + Math.random() * 4,
-              repeat: Infinity,
-              delay: Math.random() * 5,
-              ease: "linear"
-            }}
-          />
-        ))}
+    <section className="hero-slim pt-[var(--nav-h,64px)]">
+      {/* BIG BACKGROUND TITLE */}
+      <div className="bg-headline" aria-hidden="true">
+        <h1>
+          <span className="line">A Founder, A Visionary</span>
+          <span className="line">A Living Legacy</span>
+          <p>
+            From Education to Healthcare, From Hospitality to Pharma — he
+            dreamed, he built, he inspired. 80 not just in age, but in wisdom,
+            courage, and service.
+          </p>
+        </h1>
       </div>
 
-      <div className="container-custom relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Left Content */}
-          <motion.div
-            className="text-center lg:text-left space-y-8"
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
+      <MotionConfig reducedMotion={prefersReducedMotion ? "always" : "never"}>
+        <motion.div
+          className="container-custom relative z-[5] py-14 md:py-20"
+          variants={stagger}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.25, margin: "-10% 0px -10% 0px" }}
+        >
+          <div className="hero-stage">
+            {/* LEFT (md+) */}
             <motion.div
-              className="inline-flex items-center gap-2 badge-accent animate-bounce-in"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
+              className="left-stack hidden md:block"
+              variants={fadeUp}
             >
-              <Sparkles className="w-4 h-4" />
-              Special Celebration
-            </motion.div>
+              <aside className="info-card card elev-2 hover-lift text-center">
+                <h3 className="info-title">
+                  A Founder, A Visionary, A Living Legacy
+                </h3>
+                <p className="info-text">
+                  From Education to Healthcare, From Hospitality to Pharma — he
+                  dreamed, he built, he inspired.
+                </p>
 
-            <div className="space-y-6">
-              <motion.h1 
-                className="text-4xl md:text-5xl lg:text-6xl font-satoshi font-bold text-foreground leading-tight"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.3 }}
-              >
-                Celebrating a{" "}
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  Visionary Leader
-                </span>
-              </motion.h1>
-
-              <motion.p 
-                className="text-lg md:text-xl text-muted-foreground font-space max-w-2xl"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
-              >
-                Join us in honoring our founder's remarkable journey of innovation, leadership, and inspiration. Share your heartfelt wishes for this special milestone.
-              </motion.p>
-            </div>
-
-            {/* Countdown Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.5 }}
-            >
-              <Card className="inline-flex items-center gap-4 p-6 card-glass">
-                <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-2xl">
-                  <Calendar className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-space text-muted-foreground">Celebration in</p>
-                  <p className="text-2xl font-satoshi font-bold text-primary">
-                    {daysUntil} days
-                  </p>
-                </div>
-              </Card>
-            </motion.div>
-
-            {/* CTAs */}
-            <motion.div 
-              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-            >
-              <Button 
-                onClick={() => scrollToSection("#share")}
-                className="btn-hero focus-ring"
-                size="lg"
-              >
-                <Sparkles className="mr-2 h-5 w-5" />
-                Share Your Wish
-              </Button>
-              <Button
-                onClick={() => scrollToSection("#highlights")}
-                variant="outline"
-                className="btn-hero-outline focus-ring"
-                size="lg"
-              >
-                <Play className="mr-2 h-5 w-5" />
-                Watch Highlights
-              </Button>
-            </motion.div>
-          </motion.div>
-
-          {/* Right Content - Founder Image */}
-          <motion.div
-            className="flex justify-center lg:justify-end"
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-          >
-            <motion.div
-              className="relative"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 300, damping: 10 }}
-            >
-              {/* Founder Image Container */}
-              <div className="relative w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96">
-                {/* Yellow Halo */}
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-accent/30 to-accent/10 blur-xl animate-pulse"></div>
-                
-                {/* Blue Glow */}
-                <div className="absolute inset-2 rounded-full bg-gradient-to-r from-primary/20 to-primary/5 blur-lg"></div>
-                
-                {/* Main Image Circle */}
-                <div className="relative w-full h-full rounded-full bg-gradient-to-br from-primary/5 to-accent/5 border-4 border-white/20 shadow-glow flex items-center justify-center overflow-hidden">
-                  {/* Placeholder for founder image */}
-                  <div className="w-full h-full bg-gradient-to-br from-primary/10 to-accent/10 rounded-full flex items-center justify-center">
-                    <User className="w-24 h-24 md:w-32 md:h-32 lg:w-40 lg:h-40 text-primary/50" />
+                <div className="metrics-row md:flex lg:hidden justify-center">
+                  <div className="metric-chip">
+                    <div className="metric-icon bg-primary/10">
+                      <HeartPulse className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="metric-meta">
+                      <span className="metric-label">Wishes</span>
+                      <strong className="metric-value">78+ Wishes</strong>
+                    </div>
+                  </div>
+                  <div className="metric-chip">
+                    <div
+                      className="metric-icon"
+                      style={{ background: "#FAF200" }}
+                    >
+                      <BarChart3
+                        className="w-5 h-5"
+                        style={{ color: "#0606BC" }}
+                      />
+                    </div>
+                    <div className="metric-meta">
+                      <span className="metric-label">Industries</span>
+                      <strong className="metric-value">125 Industries</strong>
+                    </div>
                   </div>
                 </div>
 
-                {/* Floating Elements */}
-                <motion.div
-                  className="absolute -top-4 -right-4 w-8 h-8 bg-accent rounded-full shadow-yellow opacity-80"
-                  animate={{ 
-                    y: [0, -10, 0],
-                    rotate: [0, 180, 360]
-                  }}
-                  transition={{ 
-                    duration: 6,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                />
-                
-                <motion.div
-                  className="absolute -bottom-4 -left-4 w-6 h-6 bg-primary rounded-full shadow-glow opacity-60"
-                  animate={{ 
-                    y: [0, 10, 0],
-                    scale: [1, 1.2, 1]
-                  }}
-                  transition={{ 
-                    duration: 4,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: 1
-                  }}
+                <div className="info-cta justify-center">
+                  <Button
+                    className="btn-hero"
+                    onClick={() =>
+                      document
+                        .querySelector("#share")
+                        ?.scrollIntoView({ behavior: "smooth" })
+                    }
+                    aria-label="Share your wish"
+                  >
+                    Share Wish
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="btn-hero-outline"
+                    onClick={() =>
+                      document
+                        .querySelector("#highlights")
+                        ?.scrollIntoView({ behavior: "smooth" })
+                    }
+                    aria-label="Watch highlights"
+                  >
+                    <Play className="mr-2 h-5 w-5" /> Highlights
+                  </Button>
+                </div>
+              </aside>
+            </motion.div>
+
+            {/* CENTER */}
+            <motion.div className="portrait-col" variants={fadeUp}>
+              <div className="portrait-wrap">
+                <div className="portrait-chip chip-left">
+                  <div className="chip-icon bg-primary/10">
+                    <HeartPulse className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="chip-meta">
+                    <span className="chip-label">Wishes</span>
+                    <strong className="chip-value">78+ Wishes</strong>
+                  </div>
+                </div>
+
+                <div className="portrait-chip chip-right">
+                  <div className="chip-icon" style={{ background: "#FAF200" }}>
+                    <BarChart3
+                      className="w-5 h-5"
+                      style={{ color: "#0606BC" }}
+                    />
+                  </div>
+                  <div className="chip-meta">
+                    <span className="chip-label">Industries</span>
+                    <strong className="chip-value">125 Industries</strong>
+                  </div>
+                </div>
+
+                <img
+                  src={src}
+                  alt={imageAlt}
+                  className="portrait-img fade-bottom"
+                  loading="eager"
                 />
               </div>
             </motion.div>
-          </motion.div>
-        </div>
-      </div>
 
-      {/* Scroll Indicator */}
-      <motion.div
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 1 }}
-      >
-        <motion.div
-          className="w-6 h-10 border-2 border-primary/30 rounded-full flex justify-center"
-          animate={{ y: [0, 5, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <motion.div
-            className="w-1 h-2 bg-primary rounded-full mt-2"
-            animate={{ opacity: [1, 0, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          />
+            {/* RIGHT (md+) — FIXED ROUND LOGO CARD */}
+            <motion.aside
+              className="right-stack hidden md:grid"
+              variants={fadeUp}
+            >
+              {/* <div
+                className="logo-card card elev-2 hover-lift"
+                aria-label="DS Logo"
+              >
+                <div className="ds-ref-wrap">
+                  <img
+                    className="ds-ref-img"
+                    src={B_Logo}
+                    alt="DS"
+                    loading="lazy"
+                    draggable={false}
+                  />
+                </div>
+              </div> */}
+            </motion.aside>
+          </div>
+
+          {/* MOBILE STACK */}
+          <div className="md:hidden mt-6 space-y-4">
+            <div className="card elev-1 p-4 text-center">
+              <h3 className="info-title">A legacy of health & opportunity</h3>
+              <p className="info-text">
+                Share your wish and explore milestones that shaped thousands of
+                lives.
+              </p>
+            </div>
+
+            <div className="metrics-row-mobile">
+              <div className="metric-chip">
+                <div className="metric-icon bg-primary/10">
+                  <HeartPulse className="w-5 h-5 text-primary" />
+                </div>
+                <div className="metric-meta">
+                  <span className="metric-label">Wishes</span>
+                  <strong className="metric-value">78+ Wishes</strong>
+                </div>
+              </div>
+              <div className="metric-chip">
+                <div className="metric-icon" style={{ background: "#FAF200" }}>
+                  <BarChart3 className="w-5 h-5" style={{ color: "#0606BC" }} />
+                </div>
+                <div className="metric-meta">
+                  <span className="metric-label">Industries</span>
+                  <strong className="metric-value">125 Industries</strong>
+                </div>
+              </div>
+            </div>
+
+            {/* MOBILE ROUND LOGO CARD */}
+            {/* <div className="card elev-1 grid place-items-center p-5 logo-card--mobile">
+              <div className="ds-ref-wrap">
+                <img
+                  className="ds-ref-img"
+                  src={B_Logo}
+                  alt="DS"
+                  loading="lazy"
+                />
+              </div>
+            </div> */}
+          </div>
         </motion.div>
-      </motion.div>
+      </MotionConfig>
     </section>
   );
 };
+
+export default Hero;

@@ -12,10 +12,10 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main>
         <Hero />
-        
+
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -29,7 +29,7 @@ const Index = () => {
           <Awards />
         </motion.div>
       </main>
-      
+
       <Footer />
     </div>
   );

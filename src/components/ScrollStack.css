@@ -1,0 +1,56 @@
+/* Root scroller host */
+.scroll-stack-scroller {
+  position: relative;
+  width: 100%;
+}
+
+/* Inner flow container so we can place a timeline and end sentinel */
+.scroll-stack-inner {
+  position: relative;
+}
+
+/* Individual cards (content provides its own visual styles) */
+.scroll-stack-card {
+  position: relative;
+  transform-origin: top center;
+  will-change: transform, filter, opacity;
+  backface-visibility: hidden;
+}
+
+/* Sticky timeline rule that locks to the stack position */
+.scroll-stack-timeline {
+  position: sticky;
+  top: var(--stack-pos, 25%);
+  height: 0;
+  pointer-events: none;
+  z-index: 0;
+  /* Draw a subtle line if you want a visual guide */
+  background: transparent;
+  /* Example line:
+  background: linear-gradient(90deg, rgba(0,0,0,0.06), rgba(0,0,0,0.06));
+  height: 2px;
+  */
+}
+
+/* End sentinel element for pin calculations */
+.scroll-stack-end {
+  position: relative;
+  width: 100%;
+  height: 1px;
+  margin-top: 1px;
+}
+
+/* Optional top progress bar (hook from the TS file if you want)
+.scroll-stack-progress {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 3px;
+  width: 100%;
+  transform-origin: left center;
+  background: linear-gradient(90deg, #1E1EC2, #FAF219);
+  z-index: 9999;
+  opacity: 0.9;
+  pointer-events: none;
+}
+*/
