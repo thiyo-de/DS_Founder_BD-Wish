@@ -7,13 +7,21 @@ import Index from "./pages/Index";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
+// 👇 Custom cursor (global)
+import OCursor from "@/components/OCursor";
+import "@/styles/ocursor.css";
+
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
+      {/* Global custom cursor */}
+      <OCursor />
+
       <Toaster />
       <Sonner />
+
       <BrowserRouter
         future={{
           v7_startTransition: true,

@@ -13,10 +13,6 @@ import { ShareWishPopup } from "@/components/ShareWishPopup";
 import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
 
-// Custom cursor
-import OCursor from "@/components/OCursor";
-import "@/styles/ocursor.css";
-
 const Index = () => {
   // "boot" gating: show popup first on first session visit
   const [siteReady, setSiteReady] = useState(false);
@@ -84,7 +80,6 @@ const Index = () => {
         onClick={() => setShowPopup(true)}
         className="rounded-full h-14 w-14 bg-gradient-to-r from-[#0606bc] to-[#FF6B6B] shadow-lg hover:shadow-xl transition-all duration-300"
         size="icon"
-        data-cursor="hover"
         aria-label="Open Share Wish popup"
       >
         <Heart className="h-6 w-6" fill="white" />
@@ -94,9 +89,6 @@ const Index = () => {
 
   return (
     <>
-      {/* Sitewide custom cursor */}
-      <OCursor />
-
       {/* On first visit (this session), only render the popup. After close, render the site. */}
       {siteReady && (
         <div
