@@ -7,7 +7,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Video, Image, Music, MessageSquare, Send } from "lucide-react";
+import {
+  Video,
+  Image as ImageIcon,
+  Music,
+  MessageSquare,
+  Send,
+  Sparkles,
+  Heart,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useFileUpload } from "@/hooks/useFileUpload";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,7 +30,6 @@ interface WishFormData {
   city?: string;
   contact?: string;
   consent: boolean;
-  // File upload fields
   file_url?: string;
   file_type?: string;
   file_size?: number;
@@ -33,14 +40,17 @@ interface WishFormData {
 export const ShareWish = () => {
   const { toast } = useToast();
   const { uploadFile } = useFileUpload();
-  const [activeTab, setActiveTab] = useState("video");
+
+  const [activeTab, setActiveTab] = useState<
+    "video" | "photo" | "voice" | "text"
+  >("video");
   const [formData, setFormData] = useState<WishFormData>({
     name: "",
     message: "",
     org: "",
     city: "",
     contact: "",
-    consent: false
+    consent: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mediaReady, setMediaReady] = useState(false);
@@ -52,7 +62,7 @@ export const ShareWish = () => {
     duration?: number;
     thumbnail_url?: string;
   }) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       file_url: uploadResult.file_url,
       file_type: uploadResult.file_type,
@@ -63,48 +73,46 @@ export const ShareWish = () => {
     setMediaReady(true);
   };
 
-  const handleSubmit = async (type: string) => {
-    if (!formData.name || !formData.consent) {
+  const submitToSupabase = async (
+    type: "video" | "image" | "audio" | "text"
+  ) => {
+    if (!formData.name.trim() || !formData.consent) {
       toast({
         title: "Required fields missing",
         description: "Please fill in your name and accept the consent terms.",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
 
-    // Check for media requirements
     if (type !== "text" && !mediaReady && !formData.file_url) {
       toast({
         title: "Media required",
         description: `Please record or upload your ${type} before submitting.`,
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
 
-    if (type === "text" && !formData.message) {
+    if (type === "text" && !formData.message?.trim()) {
       toast({
         title: "Message required",
         description: "Please write your birthday wish.",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
 
     setIsSubmitting(true);
-
     try {
-      const normalizedType = type === 'photo' ? 'image' : type === 'voice' ? 'audio' : type;
       const submissionData = {
-        type: normalizedType as 'video' | 'image' | 'audio' | 'text',
+        type,
         name: formData.name.trim(),
         message: formData.message?.trim() || null,
         org: formData.org?.trim() || null,
         city: formData.city?.trim() || null,
         contact: formData.contact?.trim() || null,
-        status: 'pending',
-        // File-based fields
+        status: "pending" as const,
         file_url: formData.file_url || null,
         file_type: formData.file_type || null,
         file_size: formData.file_size || null,
@@ -113,33 +121,32 @@ export const ShareWish = () => {
       };
 
       const { error } = await supabase
-        .from('submissions')
+        .from("submissions")
         .insert([submissionData]);
-
       if (error) throw error;
 
       toast({
         title: "Wish submitted successfully! 🎉",
-        description: "Thank you! Your wish has been submitted and is awaiting admin approval before appearing on the wall."
+        description:
+          "Thank you! Your wish has been submitted and is awaiting admin approval.",
       });
 
-      // Reset form
       setFormData({
         name: "",
         message: "",
         org: "",
         city: "",
         contact: "",
-        consent: false
+        consent: false,
       });
       setMediaReady(false);
-
     } catch (error) {
       console.error("Submission error:", error);
       toast({
         title: "Submission failed",
-        description: error instanceof Error ? error.message : "Please try again later.",
-        variant: "destructive"
+        description:
+          error instanceof Error ? error.message : "Please try again later.",
+        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
@@ -147,10 +154,11 @@ export const ShareWish = () => {
   };
 
   const handleTabChange = (value: string) => {
-    setActiveTab(value);
+    // normalize and narrow type
+    const v = value as "video" | "photo" | "voice" | "text";
+    setActiveTab(v);
     setMediaReady(false);
-    // Clear media data when switching tabs
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       file_url: undefined,
       file_type: undefined,
@@ -160,261 +168,508 @@ export const ShareWish = () => {
     }));
   };
 
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const normalizedType =
+      activeTab === "photo"
+        ? "image"
+        : activeTab === "voice"
+        ? "audio"
+        : activeTab;
+    submitToSupabase(normalizedType);
+  };
+
   return (
-    <section id="share" className="py-20 bg-background">
-      <div className="container mx-auto px-6">
+    <section
+      id="share"
+      className="relative overflow-hidden pb-16 pt-28 sm:pt-32"
+      aria-labelledby="share-title"
+    >
+      {/* Soft decorative blobs (hidden on very small screens to reduce clutter) */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-12 -left-12 hidden h-56 w-56 rounded-full bg-[#0606bc]/10 blur-2xl sm:block"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -bottom-14 -right-10 hidden h-72 w-72 rounded-full bg-[#faf200]/20 blur-2xl sm:block"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute left-1/3 top-1/2 hidden h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#FF6B6B]/10 blur-xl sm:block"
+      />
+
+      <div className="container mx-auto px-4 sm:px-6">
         <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 30 }}
+          className="mb-8 text-center sm:mb-12"
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true, margin: "-80px" }}
         >
-          <h2 className="text-4xl md:text-5xl font-outfit font-bold mb-6 text-primary">
-            Share Your Birthday Wish
+          <div className="mx-auto mb-3 inline-flex items-center gap-2 rounded-full bg-[#0606bc]/10 px-3 py-1 sm:px-4">
+            <Sparkles className="h-4 w-4 text-[#0606bc]" aria-hidden />
+            <span className="text-sm font-medium text-[#0606bc]">
+              Share Your Love
+            </span>
+          </div>
+          <h2
+            id="share-title"
+            className="bg-gradient-to-r from-[#0606bc] to-[#FF6B6B] bg-clip-text text-2xl font-bold text-transparent sm:text-3xl md:text-4xl"
+          >
+            Send Your Birthday Wish
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Send your heartfelt message through video, photo, voice recording, or text. 
-            Your wishes will be reviewed and featured on our celebration wall.
+          <p className="text-lg md:text-xl text-[#333333] max-w-4xl mx-auto leading-relaxed mt-3">
+            Join the celebration! Share your birthday wishes for our Founder,
+            and after review, your heartfelt words will shine on our Wishes
+            Wall.
           </p>
         </motion.div>
 
         <motion.div
-          className="max-w-4xl mx-auto"
-          initial={{ opacity: 0, y: 50 }}
+          className="mx-auto w-full max-w-3xl"
+          initial={{ opacity: 0, y: 32 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          viewport={{ once: true, margin: "-80px" }}
         >
-          <Card className="shadow-card">
-            <CardHeader>
-              <CardTitle className="text-2xl font-outfit text-center">
-                Choose Your Wish Format
+          <Card className="overflow-hidden border-0 shadow-xl">
+            <div className="h-1.5 bg-gradient-to-r from-[#0606bc] via-[#faf200] to-[#FF6B6B]" />
+            <CardHeader className="pb-3 pt-6">
+              <CardTitle className="flex items-center justify-center gap-2 text-lg sm:text-xl">
+                <Heart className="h-5 w-5 text-[#FF6B6B]" aria-hidden />
+                <span>Choose Your Format</span>
+                <Heart className="h-5 w-5 text-[#FF6B6B]" aria-hidden />
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <Tabs value={activeTab} onValueChange={handleTabChange}>
-                <TabsList className="grid w-full grid-cols-4 mb-8">
-                  <TabsTrigger value="video" className="flex items-center gap-2">
-                    <Video className="h-4 w-4" />
-                    Video
-                  </TabsTrigger>
-                  <TabsTrigger value="photo" className="flex items-center gap-2">
-                    <Image className="h-4 w-4" />
-                    Photo
-                  </TabsTrigger>
-                  <TabsTrigger value="voice" className="flex items-center gap-2">
-                    <Music className="h-4 w-4" />
-                    Voice
-                  </TabsTrigger>
-                  <TabsTrigger value="text" className="flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4" />
-                    Text
-                  </TabsTrigger>
-                </TabsList>
 
-                <TabsContent value="video" className="space-y-6">
-                  <div className="bg-surface rounded-lg p-4">
-                    <h3 className="font-semibold mb-4">📹 Record or Upload Video</h3>
-                    <p className="text-sm text-muted-foreground mb-6">
-                      Record a video message up to 60 seconds or upload a video file (max 50MB)
-                    </p>
-                    
-                    <Tabs defaultValue="record" className="w-full">
-                      <TabsList className="grid w-full grid-cols-2 mb-4">
-                        <TabsTrigger value="record">Record Video</TabsTrigger>
-                        <TabsTrigger value="upload">Upload Video</TabsTrigger>
-                      </TabsList>
-                      
-                      <TabsContent value="record">
-                        <VideoRecorder 
-                          onRecordingComplete={async (blob) => {
-                            // Convert blob to file and upload
-                            const file = new File([blob], `video-${Date.now()}.webm`, { type: blob.type });
-                            const result = await uploadFile(file, 'video');
-                            if (result) {
-                              handleMediaUpload(result);
-                            }
-                          }}
-                          maxDuration={60}
-                        />
-                      </TabsContent>
-                      
-                      <TabsContent value="upload">
-                        <FileUploader
-                          onUploadComplete={handleMediaUpload}
-                          fileType="video"
-                          maxSize={50}
-                          acceptedTypes={['video/mp4', 'video/webm', 'video/quicktime', 'video/avi']}
-                        />
-                      </TabsContent>
-                    </Tabs>
-                  </div>
-                </TabsContent>
+            <CardContent className="p-4 sm:p-6">
+              <form onSubmit={onSubmit} className="space-y-6">
+                <Tabs
+                  value={activeTab}
+                  onValueChange={handleTabChange}
+                  className="w-full"
+                >
+                  {/* Mobile-first tabs: compact with icons; show labels from sm+ */}
+                  <TabsList className="mb-4 grid w-full grid-cols-4 gap-2 rounded-xl bg-[#F5F5F5] p-1 sm:mb-6">
+                    <TabsTrigger
+                      value="video"
+                      className="flex items-center justify-center gap-2 rounded-lg transition-all data-[state=active]:bg-white data-[state=active]:text-[#0606bc] data-[state=active]:shadow-sm"
+                      aria-label="Video"
+                    >
+                      <Video className="h-4 w-4" aria-hidden />
+                      <span className="hidden sm:inline">Video</span>
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="photo"
+                      className="flex items-center justify-center gap-2 rounded-lg transition-all data-[state=active]:bg-white data-[state=active]:text-[#0606bc] data-[state=active]:shadow-sm"
+                      aria-label="Photo"
+                    >
+                      <ImageIcon className="h-4 w-4" aria-hidden />
+                      <span className="hidden sm:inline">Photo</span>
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="voice"
+                      className="flex items-center justify-center gap-2 rounded-lg transition-all data-[state=active]:bg-white data-[state=active]:text-[#0606bc] data-[state=active]:shadow-sm"
+                      aria-label="Voice"
+                    >
+                      <Music className="h-4 w-4" aria-hidden />
+                      <span className="hidden sm:inline">Voice</span>
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="text"
+                      className="flex items-center justify-center gap-2 rounded-lg transition-all data-[state=active]:bg-white data-[state=active]:text-[#0606bc] data-[state=active]:shadow-sm"
+                      aria-label="Text"
+                    >
+                      <MessageSquare className="h-4 w-4" aria-hidden />
+                      <span className="hidden sm:inline">Text</span>
+                    </TabsTrigger>
+                  </TabsList>
 
-                <TabsContent value="photo" className="space-y-6">
-                  <div className="bg-surface rounded-lg p-4">
-                    <h3 className="font-semibold mb-4">📸 Upload Image</h3>
-                    <p className="text-sm text-muted-foreground mb-6">
-                      Upload your photo or image to share (max 5MB)
-                    </p>
-                    
-                    <FileUploader
-                      onUploadComplete={handleMediaUpload}
-                      fileType="image"
-                      maxSize={5}
-                      acceptedTypes={['image/jpeg', 'image/jpg', 'image/png', 'image/webp']}
-                    />
-                  </div>
-                </TabsContent>
+                  {/* VIDEO */}
+                  <TabsContent value="video" className="outline-none">
+                    <section className="rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50 p-4 sm:p-5">
+                      <header className="mb-3 flex items-center gap-3">
+                        <div className="rounded-lg bg-[#0606bc] p-2">
+                          <Video className="h-5 w-5 text-white" aria-hidden />
+                        </div>
+                        <div>
+                          <h3 className="text-base font-semibold text-[#0A0A2E] sm:text-lg">
+                            Record or Upload Video
+                          </h3>
+                          <p className="text-xs text-[#333]/80 sm:text-sm">
+                            Up to 60 seconds • Max 50MB
+                          </p>
+                        </div>
+                      </header>
 
-                <TabsContent value="voice" className="space-y-6">
-                  <div className="bg-surface rounded-lg p-4">
-                    <h3 className="font-semibold mb-4">🎤 Record or Upload Audio</h3>
-                    <p className="text-sm text-muted-foreground mb-6">
-                      Record a voice message up to 30 seconds or upload an audio file (max 10MB)
-                    </p>
-                    
-                    <Tabs defaultValue="record" className="w-full">
-                      <TabsList className="grid w-full grid-cols-2 mb-4">
-                        <TabsTrigger value="record">Record Audio</TabsTrigger>
-                        <TabsTrigger value="upload">Upload Audio</TabsTrigger>
-                      </TabsList>
-                      
-                      <TabsContent value="record">
-                        <AudioRecorder 
-                          onRecordingComplete={async (blob) => {
-                            // Convert blob to file and upload
-                            const file = new File([blob], `audio-${Date.now()}.webm`, { type: blob.type });
-                            const result = await uploadFile(file, 'audio');
-                            if (result) {
-                              handleMediaUpload(result);
-                            }
-                          }}
-                          maxDuration={30}
-                        />
-                      </TabsContent>
-                      
-                      <TabsContent value="upload">
-                        <FileUploader
-                          onUploadComplete={handleMediaUpload}
-                          fileType="audio"
-                          maxSize={10}
-                          acceptedTypes={['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/m4a', 'audio/webm']}
-                        />
-                      </TabsContent>
-                    </Tabs>
-                  </div>
-                </TabsContent>
+                      <Tabs defaultValue="record" className="w-full">
+                        <TabsList className="mb-3 grid w-full grid-cols-2 gap-2 rounded-lg bg-[#E8E8ED] p-1">
+                          <TabsTrigger
+                            value="record"
+                            className="rounded-md data-[state=active]:bg-white"
+                          >
+                            Record
+                          </TabsTrigger>
+                          <TabsTrigger
+                            value="upload"
+                            className="rounded-md data-[state=active]:bg-white"
+                          >
+                            Upload
+                          </TabsTrigger>
+                        </TabsList>
 
-                <TabsContent value="text" className="space-y-6">
-                  <div className="bg-surface rounded-lg p-4">
-                    <h3 className="font-semibold mb-2">💌 Text Message</h3>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Write your heartfelt birthday message
-                    </p>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="text-message">Your Message *</Label>
+                        <TabsContent value="record" className="outline-none">
+                          <VideoRecorder
+                            onRecordingComplete={async (blob) => {
+                              const file = new File(
+                                [blob],
+                                `video-${Date.now()}.webm`,
+                                {
+                                  type: blob.type,
+                                }
+                              );
+                              const result = await uploadFile(file, "video");
+                              if (result) handleMediaUpload(result);
+                            }}
+                            maxDuration={60}
+                          />
+                        </TabsContent>
+
+                        <TabsContent value="upload" className="outline-none">
+                          <FileUploader
+                            onUploadComplete={handleMediaUpload}
+                            fileType="video"
+                            maxSize={50}
+                            acceptedTypes={[
+                              "video/mp4",
+                              "video/webm",
+                              "video/quicktime",
+                              "video/avi",
+                            ]}
+                          />
+                        </TabsContent>
+                      </Tabs>
+                    </section>
+                  </TabsContent>
+
+                  {/* PHOTO */}
+                  <TabsContent value="photo" className="outline-none">
+                    <section className="rounded-2xl border border-amber-100 bg-gradient-to-br from-amber-50 to-orange-50 p-4 sm:p-5">
+                      <header className="mb-3 flex items-center gap-3">
+                        <div className="rounded-lg bg-[#faf200] p-2">
+                          <ImageIcon
+                            className="h-5 w-5 text-[#0A0A2E]"
+                            aria-hidden
+                          />
+                        </div>
+                        <div>
+                          <h3 className="text-base font-semibold text-[#0A0A2E] sm:text-lg">
+                            Upload Your Photo
+                          </h3>
+                          <p className="text-xs text-[#333]/80 sm:text-sm">
+                            Max 5MB • JPEG, PNG, WebP
+                          </p>
+                        </div>
+                      </header>
+
+                      <FileUploader
+                        onUploadComplete={handleMediaUpload}
+                        fileType="image"
+                        maxSize={5}
+                        acceptedTypes={[
+                          "image/jpeg",
+                          "image/jpg",
+                          "image/png",
+                          "image/webp",
+                        ]}
+                      />
+                    </section>
+                  </TabsContent>
+
+                  {/* VOICE */}
+                  <TabsContent value="voice" className="outline-none">
+                    <section className="rounded-2xl border border-purple-100 bg-gradient-to-br from-purple-50 to-pink-50 p-4 sm:p-5">
+                      <header className="mb-3 flex items-center gap-3">
+                        <div className="rounded-lg bg-[#FF6B6B] p-2">
+                          <Music className="h-5 w-5 text-white" aria-hidden />
+                        </div>
+                        <div>
+                          <h3 className="text-base font-semibold text-[#0A0A2E] sm:text-lg">
+                            Record or Upload Audio
+                          </h3>
+                          <p className="text-xs text-[#333]/80 sm:text-sm">
+                            Up to 30 seconds • Max 10MB
+                          </p>
+                        </div>
+                      </header>
+
+                      <Tabs defaultValue="record" className="w-full">
+                        <TabsList className="mb-3 grid w-full grid-cols-2 gap-2 rounded-lg bg-[#E8E8ED] p-1">
+                          <TabsTrigger
+                            value="record"
+                            className="rounded-md data-[state=active]:bg-white"
+                          >
+                            Record
+                          </TabsTrigger>
+                          <TabsTrigger
+                            value="upload"
+                            className="rounded-md data-[state=active]:bg-white"
+                          >
+                            Upload
+                          </TabsTrigger>
+                        </TabsList>
+
+                        <TabsContent value="record" className="outline-none">
+                          <AudioRecorder
+                            onRecordingComplete={async (blob) => {
+                              const file = new File(
+                                [blob],
+                                `audio-${Date.now()}.webm`,
+                                {
+                                  type: blob.type,
+                                }
+                              );
+                              const result = await uploadFile(file, "audio");
+                              if (result) handleMediaUpload(result);
+                            }}
+                            maxDuration={30}
+                          />
+                        </TabsContent>
+
+                        <TabsContent value="upload" className="outline-none">
+                          <FileUploader
+                            onUploadComplete={handleMediaUpload}
+                            fileType="audio"
+                            maxSize={10}
+                            acceptedTypes={[
+                              "audio/mpeg",
+                              "audio/mp3",
+                              "audio/wav",
+                              "audio/m4a",
+                              "audio/webm",
+                            ]}
+                          />
+                        </TabsContent>
+                      </Tabs>
+                    </section>
+                  </TabsContent>
+
+                  {/* TEXT */}
+                  <TabsContent value="text" className="outline-none">
+                    <section className="rounded-2xl border border-green-100 bg-gradient-to-br from-green-50 to-teal-50 p-4 sm:p-5">
+                      <header className="mb-3 flex items-center gap-3">
+                        <div className="rounded-lg bg-[#0606bc] p-2">
+                          <MessageSquare
+                            className="h-5 w-5 text-white"
+                            aria-hidden
+                          />
+                        </div>
+                        <div>
+                          <h3 className="text-base font-semibold text-[#0A0A2E] sm:text-lg">
+                            Write Your Message
+                          </h3>
+                          <p className="text-xs text-[#333]/80 sm:text-sm">
+                            Share your heartfelt birthday wishes
+                          </p>
+                        </div>
+                      </header>
+
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="text-message"
+                          className="block text-sm font-medium text-[#0A0A2E]"
+                        >
+                          Your Message *
+                        </Label>
                         <Textarea
                           id="text-message"
                           placeholder="Write your birthday wishes here... (max 500 characters)"
                           maxLength={500}
                           value={formData.message}
-                          onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              message: e.target.value,
+                            }))
+                          }
                           rows={6}
+                          className="resize-none border-2 border-[#E8E8ED] focus:border-[#0606bc] focus-visible:ring-0"
                         />
-                        <p className="text-xs text-muted-foreground mt-1">
+                        <p className="mt-1 text-right text-xs text-[#333]/60">
                           {formData.message?.length || 0}/500 characters
                         </p>
                       </div>
-                    </div>
-                  </div>
-                </TabsContent>
+                    </section>
+                  </TabsContent>
+                </Tabs>
 
                 {/* Common fields */}
-                <div className="space-y-6 pt-6 border-t">
-                  <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-5 border-t border-[#E8E8ED] pt-5">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
-                      <Label htmlFor="name">Your Name *</Label>
+                      <Label
+                        htmlFor="name"
+                        className="mb-1.5 block text-sm font-medium text-[#0A0A2E]"
+                      >
+                        Your Name *
+                      </Label>
                       <Input
                         id="name"
                         placeholder="Enter your full name"
                         value={formData.name}
-                        onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            name: e.target.value,
+                          }))
+                        }
+                        className="h-11 border-2 border-[#E8E8ED] focus:border-[#0606bc] focus-visible:ring-0"
+                        autoComplete="name"
+                        required
                       />
                     </div>
+
                     {activeTab !== "text" && (
                       <div>
-                        <Label htmlFor="message">Optional Message</Label>
+                        <Label
+                          htmlFor="message"
+                          className="mb-1.5 block text-sm font-medium text-[#0A0A2E]"
+                        >
+                          Optional Message
+                        </Label>
                         <Input
                           id="message"
-                          placeholder="Add a personal note..."
+                          placeholder="Add a personal note…"
                           value={formData.message}
-                          onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              message: e.target.value,
+                            }))
+                          }
+                          className="h-11 border-2 border-[#E8E8ED] focus:border-[#0606bc] focus-visible:ring-0"
                         />
                       </div>
                     )}
                   </div>
 
-                  <div className="grid md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     <div>
-                      <Label htmlFor="org">Organization/Company</Label>
+                      <Label
+                        htmlFor="org"
+                        className="mb-1.5 block text-sm font-medium text-[#0A0A2E]"
+                      >
+                        Organization/Company
+                      </Label>
                       <Input
                         id="org"
                         placeholder="Your organization"
-                        value={formData.org}
-                        onChange={(e) => setFormData(prev => ({ ...prev, org: e.target.value }))}
+                        value={formData.org ?? ""}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            org: e.target.value,
+                          }))
+                        }
+                        className="h-11 border-2 border-[#E8E8ED] focus:border-[#0606bc] focus-visible:ring-0"
+                        autoComplete="organization"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="city">City</Label>
+                      <Label
+                        htmlFor="city"
+                        className="mb-1.5 block text-sm font-medium text-[#0A0A2E]"
+                      >
+                        City
+                      </Label>
                       <Input
                         id="city"
                         placeholder="Your city"
-                        value={formData.city}
-                        onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
+                        value={formData.city ?? ""}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            city: e.target.value,
+                          }))
+                        }
+                        className="h-11 border-2 border-[#E8E8ED] focus:border-[#0606bc] focus-visible:ring-0"
+                        autoComplete="address-level2"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="contact">Contact (optional)</Label>
+                      <Label
+                        htmlFor="contact"
+                        className="mb-1.5 block text-sm font-medium text-[#0A0A2E]"
+                      >
+                        Contact (optional)
+                      </Label>
                       <Input
                         id="contact"
                         placeholder="Email or phone"
-                        value={formData.contact}
-                        onChange={(e) => setFormData(prev => ({ ...prev, contact: e.target.value }))}
+                        value={formData.contact ?? ""}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            contact: e.target.value,
+                          }))
+                        }
+                        className="h-11 border-2 border-[#E8E8ED] focus:border-[#0606bc] focus-visible:ring-0"
+                        autoComplete="email"
+                        inputMode="email"
                       />
                     </div>
                   </div>
 
-                  <div className="flex items-start space-x-2">
-                    <Checkbox 
-                      id="consent"
-                      checked={formData.consent}
-                      onCheckedChange={(checked) => setFormData(prev => ({ ...prev, consent: !!checked }))}
-                    />
-                    <Label htmlFor="consent" className="text-sm leading-5">
-                      I consent to sharing my birthday wish publicly on this celebration page and 
-                      understand that it will be reviewed before appearing on the wishes wall. *
-                    </Label>
+                  <div className="rounded-lg bg-[#F5F5F5] p-4">
+                    <div className="flex items-start gap-3">
+                      <Checkbox
+                        id="consent"
+                        checked={formData.consent}
+                        onCheckedChange={(checked) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            consent: !!checked,
+                          }))
+                        }
+                        className="mt-0.5 data-[state=checked]:bg-[#0606bc]"
+                        aria-describedby="consent-desc"
+                      />
+                      <Label
+                        htmlFor="consent"
+                        className="cursor-pointer text-sm leading-5 text-[#333]"
+                      >
+                        I consent to sharing my birthday wish publicly on this
+                        celebration page and understand that it will be reviewed
+                        before appearing on the wishes wall. *
+                      </Label>
+                    </div>
                   </div>
 
                   <Button
-                    onClick={() => handleSubmit(activeTab)}
-                    disabled={isSubmitting || !formData.name || !formData.consent || (activeTab !== "text" && !mediaReady)}
-                    className="btn-hero w-full"
+                    type="submit"
+                    disabled={
+                      isSubmitting ||
+                      !formData.name.trim() ||
+                      !formData.consent ||
+                      (activeTab !== "text" && !mediaReady)
+                    }
+                    className="w-full translate-y-0 bg-gradient-to-r from-[#0606bc] to-[#FF6B6B] py-3 text-lg font-semibold shadow-lg transition-all duration-300 hover:from-[#0505a5] hover:to-[#e55a5a] disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {isSubmitting ? (
-                      "Submitting..."
+                      <span className="flex items-center gap-2">
+                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                        Submitting…
+                      </span>
                     ) : (
-                      <>
-                        <Send className="mr-2 h-4 w-4" />
-                        Submit Your Wish
-                      </>
+                      <span className="flex items-center justify-center gap-2">
+                        <Send className="h-5 w-5" aria-hidden />
+                        Share Your Birthday Wish
+                      </span>
                     )}
                   </Button>
                 </div>
-              </Tabs>
+              </form>
             </CardContent>
           </Card>
         </motion.div>

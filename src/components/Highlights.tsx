@@ -250,10 +250,10 @@ export const Highlights = () => {
           <h2 className="text-4xl md:text-6xl font-outfit font-bold mb-6 bg-gradient-to-r from-[#0606bc] to-[#0A0A2E] bg-clip-text text-transparent">
             Journey Highlights
           </h2>
-          <p className="text-lg md:text-xl text-[#333333] max-w-3xl mx-auto leading-relaxed">
-            Relive the most memorable moments, groundbreaking achievements, and
-            inspiring milestones that define our incredible journey and lasting
-            impact on the industry.
+          <p className="text-lg md:text-xl text-[#333333] max-w-4xl mx-auto leading-relaxed">
+            From classrooms to communities, our Founder’s story is about people
+            first. These featured videos capture heartfelt stories of how he has
+            helped, inspired, and empowered generations.
           </p>
         </motion.div>
 
@@ -274,7 +274,7 @@ export const Highlights = () => {
               <Video className="h-6 w-6 text-white" />
             </motion.div>
             <h3 className="text-3xl font-outfit font-bold bg-gradient-to-r from-[#0606bc] to-[#0A0A2E] bg-clip-text text-transparent">
-              Featured Videos
+              Founder’s Impact
             </h3>
           </div>
 

@@ -1,0 +1,66 @@
+/* oCursor — sitewide custom cursor */
+.ocursor-dot,
+.ocursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9999; /* above most UI, below modals if needed */
+}
+
+/* Ring */
+.ocursor-ring {
+  border-radius: 999px;
+  border: 1.5px solid rgba(250, 242, 0, 0.9); /* matches your accent */
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  mix-blend-mode: normal;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+  background: rgba(250, 242, 0, 0.06);
+}
+
+/* Dot */
+.ocursor-dot {
+  border-radius: 999px;
+  background: #faf200; /* accent yellow */
+  box-shadow: 0 0 10px rgba(250, 242, 0, 0.6);
+  transition: transform 0.12s ease, background 0.2s ease, opacity 0.2s ease;
+}
+
+/* Variants */
+.ocursor-ring[data-variant="hover"] {
+  background: rgba(250, 242, 0, 0.12);
+  border-color: rgba(250, 242, 0, 1);
+}
+
+.ocursor-ring[data-variant="drag"] {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.85);
+}
+
+.ocursor-dot[data-variant="drag"] {
+  background: #fff;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+}
+
+/* Hidden when leaving viewport */
+.ocursor-dot[data-variant="hidden"],
+.ocursor-ring[data-variant="hidden"] {
+  opacity: 0;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .ocursor-dot,
+  .ocursor-ring {
+    display: none !important;
+  }
+}
+
+/* Don’t show on touch-only */
+@media (hover: none), (pointer: coarse) {
+  .ocursor-dot,
+  .ocursor-ring {
+    display: none !important;
+  }
+}

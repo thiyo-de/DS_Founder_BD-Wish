@@ -1,4 +1,4 @@
-import { motion, type Variants } from "framer-motion";
+import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import ScrollStack, { ScrollStackItem } from "@/components/ScrollStack";
@@ -11,39 +11,21 @@ import {
   Building2,
   Bus,
   Milk,
+  Lightbulb,
   Rocket,
-  Star,
-  Target,
-  HeartHandshake,
+  Users,
 } from "lucide-react";
+import "./About.css";
 
-const BRAND = { yellow: "#FAF219", blue: "#1E1EC2", darkBlue: "#15158A" };
-
-/** Use cubic-bezier arrays to satisfy framer-motion TS types */
-const easeOutQuart: [number, number, number, number] = [0.25, 1, 0.5, 1];
-
-/** Animations */
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      duration: 0.6,
-    },
-  },
-};
-
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      ease: easeOutQuart,
-    },
-  },
+/* ------ Brand (mirrors CSS variables) ------ */
+const BRAND = {
+  yellow: "#FAF200",
+  blue: "#0606BC",
+  coral: "#FF6B6B",
+  offWhite: "#FEFDF8",
+  navy: "#0A0A2E",
+  charcoal: "#333333",
+  coolGray: "#E8E8ED",
 };
 
 const milestones = [
@@ -51,336 +33,308 @@ const milestones = [
     year: "Education",
     title: "Education Without Barriers",
     description:
-      "From LKG to MBBS and beyond—universities, colleges and schools that make quality learning accessible, many with free or subsidized education.",
+      "Millions of students educated from LKG to MBBS—Dhanalakshmi Srinivasan University and its institutions equip learners with global skills, many at free or subsidized cost.",
     icon: GraduationCap,
-    gradient: "from-blue-50 to-yellow-50",
-    accent: BRAND.blue,
+    gradient: "linear-gradient(135deg, var(--brand-blue) 0%, #2D2DFF 100%)",
   },
   {
     year: "Healthcare",
     title: "Health for Every Heart",
     description:
-      "World-class hospitals delivering advanced care and community programs—free baby deliveries, vaccinations, and support across 50+ villages.",
+      "Super-specialty hospitals delivering world-class, affordable care—advanced surgeries, organ transplants, free healthcare in 56 villages, free baby deliveries, and vaccinations for all.",
     icon: HeartPulse,
-    gradient: "from-pink-50 to-blue-50",
-    accent: "#EC4899",
+    gradient: "linear-gradient(135deg, var(--coral-accent) 0%, #FF8E8E 100%)",
   },
   {
     year: "Energy",
     title: "Green Power & Biofuel",
     description:
-      "26 MW clean energy and ethanol production—turning waste to wealth and fueling a cleaner mobility future for India.",
+      "26 MW bagasse-powered plants and ethanol production turning waste into wealth, fueling India’s clean mobility and future-ready energy ecosystem.",
     icon: Zap,
-    gradient: "from-green-50 to-blue-50",
-    accent: "#10B981",
+    gradient: "linear-gradient(135deg, var(--brand-yellow) 0%, #FFFB7D 100%)",
   },
   {
     year: "Pharma",
     title: "Affordable Medicines",
     description:
-      "CASID Pharmaceuticals—reliable, accessible formulations that strengthen the Group's health mission.",
+      "CASID Pharmaceuticals—accessible, innovative formulations ensuring stronger health outcomes across India.",
     icon: Pill,
-    gradient: "from-purple-50 to-pink-50",
-    accent: "#8B5CF6",
+    gradient: "linear-gradient(135deg, #8E44AD 0%, #BB8FCE 100%)",
   },
   {
     year: "Finance",
     title: "Finance for All",
     description:
-      "Chit funds and loans for business, vehicle and property—unlocking growth for families and entrepreneurs.",
+      "Chit funds, business loans, vehicle and property loans—flexible financial solutions unlocking growth for families and entrepreneurs.",
     icon: Wallet,
-    gradient: "from-emerald-50 to-blue-50",
-    accent: "#059669",
+    gradient: "linear-gradient(135deg, #27AE60 0%, #58D68D 100%)",
   },
   {
     year: "Infra & Hospitality",
     title: "Building Tomorrow",
     description:
-      "Highways, bridges, urban spaces, hotels and halls—projects that enable prosperity, celebration and connection.",
+      "100 km of highways, bridges, flyovers, urban spaces, hotels, and marriage halls—every project a foundation of progress and celebration.",
     icon: Building2,
-    gradient: "from-orange-50 to-red-50",
-    accent: "#F59E0B",
+    gradient: "linear-gradient(135deg, #E67E22 0%, #F39C12 100%)",
   },
   {
     year: "Transport",
     title: "Connecting Communities",
     description:
-      "Transport services that link students, farmers and industries across 50+ villages—progress in motion.",
+      "Transport services linking 50+ villages, students, farmers, and industries—making growth accessible and unstoppable.",
     icon: Bus,
-    gradient: "from-cyan-50 to-blue-50",
-    accent: "#06B6D4",
+    gradient: "linear-gradient(135deg, #3498DB 0%, #5DADE2 100%)",
   },
   {
     year: "Dairy",
     title: "Nurturing Daily Health",
     description:
-      "Modern dairy with 300+ cattle—fresh milk to students and communities, reinforcing nutrition with dignity.",
+      "300+ cattle producing fresh, hygienic milk reaching students and families daily—nutrition with dignity and trust.",
     icon: Milk,
-    gradient: "from-white to-blue-50",
-    accent: BRAND.blue,
+    gradient: "linear-gradient(135deg, #95A5A6 0%, #BDC3C7 100%)",
   },
 ];
 
 const values = [
   {
-    icon: Target,
+    icon: Lightbulb,
     title: "Visionary Innovation",
     description:
-      "Pioneering breakthrough solutions that shape the future of our industry.",
+      "Pioneering breakthrough solutions that shape the future of India—across education, healthcare, energy, and beyond.",
     color: BRAND.blue,
+  },
+  {
+    icon: GraduationCap,
+    title: "Continuous Learning",
+    description:
+      "Empowering individuals and institutions to grow with knowledge, skills, and leadership at every level.",
+    color: BRAND.coral,
   },
   {
     icon: Rocket,
     title: "Excellence & Quality",
     description:
-      "Maintaining the highest standards in everything we do, every single day.",
-    color: "#EC4899",
+      "Upholding the highest standards in everything—classrooms, hospitals, industries, and communities.",
+    color: BRAND.yellow,
   },
   {
-    icon: HeartHandshake,
+    icon: Users,
     title: "Community Impact",
     description:
-      "Building meaningful connections and creating positive change in our communities.",
-    color: "#10B981",
-  },
-  {
-    icon: Star,
-    title: "Continuous Learning",
-    description:
-      "Embracing knowledge and fostering growth at every level of the organization.",
-    color: "#F59E0B",
+      "Building meaningful connections, uplifting farmers, empowering rural families, and transforming lives nationwide.",
+    color: "#27AE60",
   },
 ];
 
 export const About = () => {
-  const stackPosition = "18%";
+  const stackPosition = "16%";
 
   return (
     <section
       id="about"
-      className="relative overflow-hidden py-16 sm:py-20 lg:py-28"
+      className="pb-12 sm:pb-16 lg:pb-20 pt-28 sm:pt-32 lg:pt-40 relative overflow-hidden"
     >
-      {/* Background Elements (kept as-is) */}
-      <div className="absolute inset-0 -z-10">
-        <div
-          className="absolute top-1/4 left-10 w-72 h-72 rounded-full blur-3xl opacity-10"
-          style={{ background: BRAND.blue }}
-        />
-        <div
-          className="absolute bottom-1/4 right-10 w-96 h-96 rounded-full blur-3xl opacity-10"
-          style={{ background: BRAND.yellow }}
-        />
-      </div>
+      {/* Light overall brand gradient background */}
+      <div className="page-bg" aria-hidden="true" />
 
-      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 mx-auto w-full max-w-6xl px-4 sm:px-5 lg:px-8 py-8 sm:py-12 lg:py-16">
         {/* Header */}
         <motion.header
-          className="text-center space-y-6 sm:space-y-8 mb-12 sm:mb-16 lg:mb-20"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          variants={containerVariants}
+          className="text-center space-y-3 sm:space-y-4 lg:space-y-5 mb-8 sm:mb-10 lg:mb-14"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true, amount: 0.3 }}
         >
-          <motion.div variants={itemVariants}>
-            <Badge
-              className="text-xs sm:text-sm px-4 py-2 rounded-full font-medium tracking-wide border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-              style={{
-                background: `linear-gradient(135deg, ${BRAND.blue} 0%, ${BRAND.darkBlue} 100%)`,
-                color: "#fff",
-              }}
-            >
-              <Star className="w-3 h-3 mr-1" />
-              Our Founder's Journey
-            </Badge>
-          </motion.div>
+          <Badge
+            className="text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-full tracking-wide font-medium shadow-sm"
+            style={{
+              background: BRAND.blue,
+              color: BRAND.offWhite,
+              border: `1px solid ${BRAND.blue}`,
+            }}
+          >
+            Our Founder's Journey
+          </Badge>
 
-          <motion.h2
-            className="font-satoshi font-bold tracking-tight text-3xl sm:text-4xl lg:text-5xl lg:leading-tight"
-            variants={itemVariants}
+          <h2
+            className="font-satoshi font-extrabold tracking-[-0.02em] text-2xl sm:text-3xl lg:text-5xl leading-tight px-2 sm:px-0"
+            style={{ color: BRAND.navy }}
           >
             A Legacy of{" "}
             <span
               className="bg-clip-text text-transparent"
               style={{
-                background: `linear-gradient(135deg, ${BRAND.blue} 0%, ${BRAND.darkBlue} 100%)`,
-                WebkitBackgroundClip: "text",
+                backgroundImage: `linear-gradient(135deg, ${BRAND.blue} 0%, ${BRAND.yellow} 50%, ${BRAND.coral} 100%)`,
               }}
             >
-              Education
+              Education, Health & Opportunity
             </span>
-            , Health &{" "}
-            <span
-              className="bg-clip-text text-transparent"
-              style={{
-                background:
-                  "linear-gradient(135deg, #FFD84A 0%, #E6B800 100%)",
-                WebkitBackgroundClip: "text",
-              }}
-            >
-              Opportunity
-            </span>
-          </motion.h2>
+          </h2>
 
-          <motion.p
-            className="mx-auto max-w-4xl text-sm sm:text-base lg:text-lg leading-relaxed text-gray-600"
-            variants={itemVariants}
+          <p
+            className="mx-auto max-w-3xl text-sm sm:text-base lg:text-lg leading-relaxed px-2 sm:px-0"
+            style={{ color: BRAND.charcoal }}
           >
-            From a humble beginning to a multi-sector movement, the
-            Dhanalakshmi Srinivasan Group has empowered lakhs of people through
-            education, accessible healthcare, sustainable industry and dignified
-            jobs.
-          </motion.p>
+            From a humble beginning to a multi-sector movement, the Dhanalakshmi
+            Srinivasan Group has empowered lakhs of people through education,
+            accessible healthcare, sustainable industry and dignified jobs.
+          </p>
         </motion.header>
 
-        {/* ScrollStack */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8, ease: easeOutQuart }}
-        >
+        {/* Milestones (ScrollStack) */}
+        <div className="pb-12 sm:pb-16 lg:pb-20 mobile-stack-safe">
           <ScrollStack
-            className="mt-4"
-            baseScale={0.92}
-            itemScale={0.035}
-            itemDistance={100}
-            itemStackDistance={32}
+            className="mt-2"
+            baseScale={0.94}
+            itemScale={0.03}
+            itemDistance={84}
+            itemStackDistance={28}
             stackPosition={stackPosition}
-            scaleEndPosition="10%"
-            rotationAmount={0.2}
-            blurAmount={0.8}
-            useWindowScroll={true}
-            showProgress={true}
-            onStackComplete={() => console.log("Stack complete!")}
+            scaleEndPosition="12%"
+            rotationAmount={0}
+            blurAmount={0}
+            useWindowScroll
           >
-            {milestones.map((milestone, index) => {
-              const Icon = milestone.icon;
+            {milestones.map((m, index) => {
+              const Icon = m.icon;
               return (
-                <ScrollStackItem key={milestone.title} index={index}>
-                  <Card className="relative group overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 bg-white">
-                    {/* Animated gradient border */}
+                <ScrollStackItem key={m.title}>
+                  <Card className="relative bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden group rounded-2xl sm:rounded-3xl">
+                    {/* Hover gradient ring */}
                     <div
-                      className="absolute inset-0 bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl"
-                      style={{
-                        background: `linear-gradient(135deg, ${milestone.accent}20, transparent 50%)`,
-                      }}
-                    />
+                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl sm:rounded-3xl p-[1px] sm:p-[2px]"
+                      style={{ background: m.gradient }}
+                    >
+                      <div className="w-full h-full bg-white rounded-2xl sm:rounded-3xl" />
+                    </div>
 
-                    <CardContent className="relative p-6 sm:p-8 lg:p-10 z-10">
-                      {/* Icon row */}
-                      <div className="flex items-center justify-between mb-6">
-                        <Badge
-                          className="text-xs font-semibold px-4 py-2 rounded-full border-0 shadow-md"
-                          style={{
-                            background: `linear-gradient(135deg, ${BRAND.yellow} 0%, #FFD700 100%)`,
-                            color: BRAND.darkBlue,
-                          }}
-                        >
-                          {milestone.year}
-                        </Badge>
-
-                        <div
-                          className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300"
-                          style={{
-                            background: `linear-gradient(135deg, ${milestone.accent} 0%, ${milestone.accent}80 100%)`,
-                          }}
-                        >
-                          <Icon className="w-6 h-6 text-white" />
-                        </div>
+                    <CardContent className="p-4 sm:p-5 lg:p-7 relative z-10">
+                      {/* Step number */}
+                      <div
+                        className="absolute left-3 sm:left-4 top-4 sm:top-6 w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow-md"
+                        style={{ backgroundImage: m.gradient }}
+                        aria-label={`Step ${index + 1}`}
+                      >
+                        {index + 1}
                       </div>
 
-                      <h4
-                        className="text-xl sm:text-2xl lg:text-3xl font-satoshi font-bold leading-tight mb-4 group-hover:translate-x-2 transition-transform duration-300"
-                        style={{ color: milestone.accent }}
-                      >
-                        {milestone.title}
-                      </h4>
-
-                      <p className="text-sm sm:text-base text-gray-600 leading-relaxed group-hover:translate-x-1 transition-transform duration-300">
-                        {milestone.description}
-                      </p>
-
-                      {/* Hover effect line */}
+                      {/* Right-top icon */}
                       <div
-                        className="absolute bottom-0 left-0 h-1 w-0 group-hover:w-full transition-all duration-500 rounded-full"
-                        style={{ background: milestone.accent }}
-                      />
+                        className="absolute right-3 sm:right-5 top-3 sm:top-5 rounded-lg sm:rounded-xl p-2 sm:p-2.5 border shadow-sm group-hover:scale-110 transition-transform duration-300 bg-white"
+                        style={{ borderColor: BRAND.coolGray }}
+                      >
+                        <Icon
+                          className="h-4 w-4 sm:h-6 sm:w-6"
+                          style={{ color: BRAND.blue }}
+                        />
+                      </div>
+
+                      {/* Content */}
+                      <div className="pl-12 sm:pl-16 pr-12 sm:pr-16 lg:pr-20">
+                        <Badge
+                          className="text-xs px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full font-medium mb-2 sm:mb-3 shadow-sm"
+                          style={{
+                            background: BRAND.yellow,
+                            color: BRAND.navy,
+                            border: `1px solid ${BRAND.coolGray}`,
+                          }}
+                        >
+                          {m.year}
+                        </Badge>
+
+                        <h4
+                          className="mt-1 sm:mt-2 text-base sm:text-lg lg:text-2xl font-satoshi font-semibold leading-snug"
+                          style={{ color: BRAND.navy }}
+                        >
+                          {m.title}
+                        </h4>
+
+                        <p
+                          className="mt-2 sm:mt-3 text-xs sm:text-sm lg:text-base leading-relaxed"
+                          style={{ color: BRAND.charcoal }}
+                        >
+                          {m.description}
+                        </p>
+                      </div>
                     </CardContent>
+
+                    {/* Accent bar */}
+                    <div
+                      className="h-1.5 sm:h-2 w-full transition-all duration-500 group-hover:h-2 sm:group-hover:h-3"
+                      style={{ background: m.gradient }}
+                    />
                   </Card>
                 </ScrollStackItem>
               );
             })}
           </ScrollStack>
-        </motion.div>
+        </div>
 
         {/* Values */}
         <motion.div
-          className="mt-20 sm:mt-24 lg:mt-32"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          variants={containerVariants}
+          className="mt-12 sm:mt-16 lg:mt-24"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true, amount: 0.25 }}
         >
-          <motion.h3
-            className="text-center text-2xl sm:text-3xl lg:text-4xl font-satoshi font-bold mb-8 sm:mb-12"
-            variants={itemVariants}
-          >
-            <span
-              className="bg-clip-text text-transparent"
-              style={{
-                background: `linear-gradient(135deg, ${BRAND.blue} 0%, ${BRAND.darkBlue} 100%)`,
-                WebkitBackgroundClip: "text",
-              }}
+          <div className="text-center mb-8 sm:mb-10 lg:mb-12">
+            <h3
+              className="text-xl sm:text-2xl lg:text-4xl font-satoshi font-bold mb-3 sm:mb-4"
+              style={{ color: BRAND.navy }}
             >
-              Guiding Principles
-            </span>
-          </motion.h3>
+              Our Pillars of Growth
+            </h3>
+            <p
+              className="text-xs sm:text-sm lg:text-base max-w-2xl mx-auto px-2 sm:px-0"
+              style={{ color: BRAND.charcoal }}
+            >
+              The core values that drive our mission and shape our impact across
+              every sector we serve
+            </p>
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-            {values.map((value) => {
-              const Icon = value.icon;
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+            {values.map((v, index) => {
+              const Icon = v.icon;
               return (
                 <motion.div
-                  key={value.title}
-                  variants={itemVariants}
-                  whileHover={{
-                    y: -8,
-                    scale: 1.02,
-                    transition: { duration: 0.3, ease: easeOutQuart },
-                  }}
+                  key={v.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: true }}
                 >
-                  <Card className="h-full border-0 shadow-lg hover:shadow-2xl bg-white/80 backdrop-blur-sm group transition-all duration-500 overflow-hidden">
-                    <CardContent className="p-6 sm:p-8 text-center space-y-4 sm:space-y-6 h-full flex flex-col relative">
-                      {/* Hover background */}
+                  <Card className="h-full border-0 bg-white/80 backdrop-blur-sm hover:bg-white shadow-lg hover:shadow-xl transition-all duration-500 group overflow-hidden rounded-xl sm:rounded-2xl">
+                    <CardContent className="p-4 sm:p-5 lg:p-6 text-center flex flex-col items-center h-full">
                       <div
-                        className="absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-500"
-                        style={{ background: value.color }}
-                      />
-
-                      <div
-                        className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300"
-                        style={{
-                          background: `linear-gradient(135deg, ${value.color} 0%, ${value.color}80 100%)`,
-                        }}
+                        className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 mb-3 sm:mb-4"
+                        style={{ background: v.color }}
                       >
-                        <Icon className="w-7 h-7 text-white" />
+                        <Icon
+                          className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8"
+                          style={{ color: BRAND.offWhite }}
+                        />
                       </div>
 
-                      <h4 className="text-lg sm:text-xl font-satoshi font-semibold text-gray-900 group-hover:text-gray-800 transition-colors duration-300">
-                        {value.title}
+                      <h4
+                        className="text-sm sm:text-base lg:text-lg xl:text-xl font-satoshi font-semibold mb-1 sm:mb-2"
+                        style={{ color: BRAND.navy }}
+                      >
+                        {v.title}
                       </h4>
 
-                      <p className="text-sm text-gray-600 leading-relaxed flex-grow group-hover:text-gray-700 transition-colors duration-300">
-                        {value.description}
+                      <p
+                        className="text-xs sm:text-sm lg:text-base leading-relaxed opacity-90 flex-grow"
+                        style={{ color: BRAND.charcoal }}
+                      >
+                        {v.description}
                       </p>
 
-                      {/* Animated border */}
                       <div
-                        className="absolute bottom-0 left-1/2 w-0 h-1 rounded-full group-hover:w-4/5 transition-all duration-500"
-                        style={{
-                          background: `linear-gradient(90deg, transparent, ${value.color}, transparent)`,
-                          transform: "translateX(-50%)",
-                        }}
+                        className="w-10 h-0.5 sm:w-12 sm:h-1 rounded-full mt-3 sm:mt-4 transition-all duration-500 group-hover:w-12 sm:group-hover:w-16"
+                        style={{ background: v.color }}
                       />
                     </CardContent>
                   </Card>
@@ -390,41 +344,37 @@ export const About = () => {
           </div>
         </motion.div>
 
-        {/* Stats */}
+        {/* CTA */}
         <motion.div
-          className="mt-20 sm:mt-24 lg:mt-32 text-center"
-          initial={{ opacity: 0, y: 30 }}
+          className="text-center mt-12 sm:mt-16 lg:mt-20"
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, ease: easeOutQuart }}
         >
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
-            {[
-              { number: "50K+", label: "Students Educated" },
-              { number: "100+", label: "Villages Served" },
-              { number: "26MW", label: "Clean Energy" },
-              { number: "300+", label: "Cattle Dairy" },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div
-                  className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 bg-clip-text text-transparent"
-                  style={{
-                    background: `linear-gradient(135deg, ${BRAND.blue} 0%, ${BRAND.darkBlue} 100%)`,
-                    WebkitBackgroundClip: "text",
-                  }}
-                >
-                  {stat.number}
-                </div>
-                <div className="text-xs sm:text-sm text-gray-600 font-medium">
-                  {stat.label}
-                </div>
-              </div>
-            ))}
+          <div
+            className="rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10 xl:p-12 shadow-xl lg:shadow-2xl"
+            style={{
+              background: `linear-gradient(135deg, ${BRAND.blue} 0%, ${BRAND.navy} 100%)`,
+            }}
+          >
+            <h3 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-satoshi font-bold mb-3 sm:mb-4 text-white">
+              Discover Heartfelt Wishes
+            </h3>
+            <p className="text-white/90 text-xs sm:text-sm lg:text-base max-w-2xl mx-auto mb-4 sm:mb-5 lg:mb-6 px-2 sm:px-0">
+              Explore a wall of love, memories, and tributes — messages from
+              colleagues, friends, and admirers around the world.
+            </p>
+            <a
+              href="#wishes"
+              className="inline-block px-6 sm:px-8 py-2.5 sm:py-3 rounded-full font-semibold text-xs sm:text-sm lg:text-base transition-all duration-300 hover:scale-105 shadow-lg"
+              style={{ background: BRAND.yellow, color: BRAND.navy }}
+            >
+              View Wishes Wall
+            </a>
           </div>
         </motion.div>
       </div>
     </section>
   );
 };
-
-export default About;

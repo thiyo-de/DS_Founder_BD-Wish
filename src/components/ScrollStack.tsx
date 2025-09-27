@@ -14,8 +14,6 @@ import "./ScrollStack.css";
 export interface ScrollStackItemProps {
   itemClassName?: string;
   children: ReactNode;
-  /** allow About to pass index (not used internally, but harmless) */
-  index?: number;
 }
 
 export const ScrollStackItem: React.FC<ScrollStackItemProps> = ({
@@ -56,9 +54,6 @@ interface ScrollStackProps {
   /** use window scroll instead of internal scroller */
   useWindowScroll?: boolean;
 
-  /** show the top progress bar */
-  showProgress?: boolean;
-
   /** callback when last item is pinned (once per pass) */
   onStackComplete?: () => void;
 }
@@ -68,7 +63,6 @@ type TransformState = {
   scale: number;
   rotation: number;
   blur: number;
-  opacity: number;
 };
 
 type ScrollData = {
@@ -81,15 +75,16 @@ type CSSPropertiesWithVars = React.CSSProperties & {
   ["--stack-pos"]?: string;
 };
 
-/** Narrow typing for document.fonts to avoid `any` */
-type DocumentWithFonts = Document & {
-  fonts?: FontFaceSet;
-};
-
 const clamp = (v: number, min: number, max: number) =>
   Math.max(min, Math.min(max, v));
 const round3 = (n: number) => Math.round(n * 1000) / 1000;
 const round2 = (n: number) => Math.round(n * 100) / 100;
+
+const prefersReducedMotion = (): boolean => {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function")
+    return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+};
 
 const ScrollStack: React.FC<ScrollStackProps> = ({
   children,
@@ -103,7 +98,6 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
   rotationAmount = 0,
   blurAmount = 0,
   useWindowScroll = true,
-  showProgress = true,
   onStackComplete,
 }) => {
   /** Root */
@@ -122,9 +116,7 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
 
   /** State flags */
   const stackCompletedRef = useRef<boolean>(false);
-
-  /** Progress value (CSS can read via transform if you wire it) */
-  const progressRef = useRef<number>(0);
+  const reducedMotionRef = useRef<boolean>(false);
 
   const parsePos = useCallback((value: string | number, vh: number) => {
     if (typeof value === "string" && value.includes("%")) {
@@ -139,16 +131,16 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
     return { scrollTop: latestScrollRef.current, vh: window.innerHeight };
   }, []);
 
-  /** Measure absolute top for each card once (and on resize/content changes) */
+  /** Measure absolute top for each card once (and on resize) */
   const measureCards = useCallback(() => {
     if (typeof window === "undefined") return;
 
-    const host: Document | HTMLElement | null = useWindowScroll
+    const root: Document | HTMLElement | null = useWindowScroll
       ? document
       : scrollerRef.current;
 
     const cards = Array.from(
-      host?.querySelectorAll(".scroll-stack-card") ?? []
+      root?.querySelectorAll(".scroll-stack-card") ?? []
     ) as HTMLElement[];
 
     cardsRef.current = cards;
@@ -164,11 +156,14 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
       tops.push(top);
 
       // static styling (set once)
-      el.style.willChange = "transform, filter, opacity";
+      el.style.willChange = "transform, filter";
       el.style.transformOrigin = "top center";
       el.style.backfaceVisibility = "hidden";
-      el.style.zIndex = String(1000 - i); // maintain visual stacking
-      if (i < cards.length - 1) el.style.marginBottom = `${itemDistance}px`;
+
+      // spacing to prevent overlap when transforms are disabled
+      if (i < cards.length - 1) {
+        el.style.marginBottom = `${itemDistance}px`;
+      }
     }
     cardTopsRef.current = tops;
   }, [itemDistance, useWindowScroll]);
@@ -178,15 +173,20 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
     const cards = cardsRef.current;
     if (!cards.length || typeof window === "undefined") return;
 
+    // if user prefers reduced motion, skip transforms entirely
+    if (reducedMotionRef.current) {
+      for (let i = 0; i < cards.length; i++) {
+        const el = cards[i];
+        el.style.transform = "none";
+        el.style.filter = "";
+      }
+      return;
+    }
+
     const { scrollTop, vh } = getScrollData();
     const stackPosPx = parsePos(stackPosition, vh);
     const scaleEndPx = parsePos(scaleEndPosition, vh);
 
-    // progress (if you style a progress bar in CSS; value kept internally)
-    const totalHeight = document.documentElement.scrollHeight - vh;
-    progressRef.current = totalHeight > 0 ? scrollTop / totalHeight : 0;
-
-    // for last card callback pin end:
     const endEl = document.querySelector(
       ".scroll-stack-end"
     ) as HTMLElement | null;
@@ -228,22 +228,20 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
       }
       translateY = round2(translateY);
 
-      // optional blur by depth (functional fix: clear filter explicitly when 0)
+      // optional blur by depth
       let blur = 0;
       if (blurAmount > 0) {
-        // how many are already pinned above?
         let topCardIdx = 0;
         for (let j = 0; j < cards.length; j++) {
           const jTop = cardTopsRef.current[j];
           const jStart = jTop - stackPosPx - itemStackDistance * j;
           if (scrollTop >= jStart) topCardIdx = j;
         }
-        if (i < topCardIdx) blur = (topCardIdx - i) * blurAmount;
+        if (i < topCardIdx) {
+          blur = (topCardIdx - i) * blurAmount;
+        }
       }
       blur = round2(blur);
-
-      // subtle depth fade (kept tiny)
-      const opacity = round2(1 - i * 0.02 * p);
 
       // diff check to avoid redundant styles
       const last = lastTransformsRef.current.get(i);
@@ -252,19 +250,11 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
         Math.abs(last.translateY - translateY) > 0.1 ||
         Math.abs(last.scale - scale) > 0.001 ||
         Math.abs(last.rotation - rotation) > 0.1 ||
-        Math.abs(last.blur - blur) > 0.1 ||
-        Math.abs(last.opacity - opacity) > 0.01
+        Math.abs(last.blur - blur) > 0.1
       ) {
         el.style.transform = `translate3d(0, ${translateY}px, 0) scale(${scale}) rotate(${rotation}deg)`;
-        el.style.filter = blur > 0 ? `blur(${blur}px)` : "none";
-        el.style.opacity = String(opacity);
-        lastTransformsRef.current.set(i, {
-          translateY,
-          scale,
-          rotation,
-          blur,
-          opacity,
-        });
+        el.style.filter = blur > 0 ? `blur(${blur}px)` : "";
+        lastTransformsRef.current.set(i, { translateY, scale, rotation, blur });
       }
 
       // last-card completion
@@ -280,6 +270,7 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
     }
   }, [
     baseScale,
+    blurAmount,
     getScrollData,
     itemScale,
     itemStackDistance,
@@ -288,7 +279,6 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
     rotationAmount,
     scaleEndPosition,
     stackPosition,
-    blurAmount,
   ]);
 
   /** Scroll -> schedule RAF */
@@ -305,32 +295,45 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    if (!lenisRef.current) {
-      const lenis = new Lenis({
-        duration: 1.08,
-        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smoothWheel: true,
-        syncTouch: true,
-        touchMultiplier: 1.2,
-      });
+    reducedMotionRef.current = prefersReducedMotion();
 
-      const onScroll = ({ scroll }: { scroll: number }) => {
-        latestScrollRef.current = scroll;
+    if (!reducedMotionRef.current) {
+      if (!lenisRef.current) {
+        const lenis = new Lenis({
+          duration: 1.0,
+          easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          smoothWheel: true,
+          syncTouch: true,
+        });
+
+        lenis.on("scroll", ({ scroll }: { scroll: number }) => {
+          latestScrollRef.current = scroll;
+          requestTick();
+        });
+
+        const raf = (time: number) => {
+          lenis.raf(time);
+          rafIdRef.current = requestAnimationFrame(raf);
+        };
+        rafIdRef.current = requestAnimationFrame(raf);
+
+        lenisRef.current = lenis;
+      } else {
+        lenisRef.current.on("scroll", ({ scroll }: { scroll: number }) => {
+          latestScrollRef.current = scroll;
+          requestTick();
+        });
+      }
+    } else {
+      // fallback: native scroll listener when motion is reduced
+      const onScroll = () => {
+        latestScrollRef.current = window.scrollY || 0;
         requestTick();
       };
-
-      lenis.on("scroll", onScroll);
-
-      const raf = (time: number) => {
-        lenis.raf(time);
-        rafIdRef.current = requestAnimationFrame(raf);
-      };
-      rafIdRef.current = requestAnimationFrame(raf);
-
-      lenisRef.current = lenis;
+      window.addEventListener("scroll", onScroll, { passive: true });
+      return () => window.removeEventListener("scroll", onScroll);
     }
 
-    // initialize
     latestScrollRef.current = window.scrollY || 0;
     requestTick();
 
@@ -343,11 +346,10 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
     };
   }, [requestTick]);
 
-  /** Measure on mount + resize/content changes (debounced) */
+  /** Measure on mount + resize (debounced) */
   useLayoutEffect(() => {
     if (typeof window === "undefined") return;
 
-    // capture ref snapshot for cleanup
     const lastTransformsMap = lastTransformsRef.current;
 
     const measureAndUpdate = () => {
@@ -364,28 +366,18 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
       rId = requestAnimationFrame(measureAndUpdate);
     };
 
-    // react to viewport changes
     window.addEventListener("resize", onResize, { passive: true });
     window.addEventListener("orientationchange", onResize);
 
-    // react to content changes (images, fonts) to avoid “drop/overlap”
-    const ro = new ResizeObserver(() => onResize());
-    if (scrollerRef.current) ro.observe(scrollerRef.current);
-
-    // fonts & late images can shift layout — avoid `any`
-    const fontDoc: DocumentWithFonts = document as DocumentWithFonts;
-    fontDoc.fonts?.ready.finally(onResize);
-
-    window.addEventListener("load", onResize, { once: true });
+    // also re-measure once images/fonts settle
+    const settleTimeout = window.setTimeout(measureAndUpdate, 300);
 
     return () => {
       window.removeEventListener("resize", onResize);
       window.removeEventListener("orientationchange", onResize);
-      window.removeEventListener("load", onResize);
       if (rId) cancelAnimationFrame(rId);
-      ro.disconnect();
+      window.clearTimeout(settleTimeout);
 
-      // cleanup caches using captured map
       cardsRef.current = [];
       cardTopsRef.current = [];
       lastTransformsMap.clear();
@@ -395,8 +387,7 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
 
   /** CSS var so the timeline line can lock to the stack position exactly */
   const stackPosString = useMemo(
-    () =>
-      typeof stackPosition === "string" ? stackPosition : `${stackPosition}px`,
+    () => (typeof stackPosition === "string" ? stackPosition : `${stackPosition}px`),
     [stackPosition]
   );
 
@@ -411,23 +402,19 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
   );
 
   return (
-    <>
-      {/* Optional: Add a progress element in your layout and read progressRef.current if needed */}
-      <div
-        className={scrollerClass}
-        ref={scrollerRef}
-        data-window-scroll={useWindowScroll ? "true" : "false"}
-        style={scrollerStyle}
-      >
-        {/* Sticky timeline (styled in CSS) */}
-        <div className="scroll-stack-timeline" />
-
-        <div className="scroll-stack-inner">
-          {children}
-          <div className="scroll-stack-end" />
-        </div>
+    <div
+      className={scrollerClass}
+      ref={scrollerRef}
+      data-window-scroll={useWindowScroll ? "true" : "false"}
+      style={scrollerStyle}
+    >
+      <div className="scroll-stack-inner">
+        {/* Optional sticky line:
+        <div className="scroll-stack-timeline" /> */}
+        {children}
+        <div className="scroll-stack-end" />
       </div>
-    </>
+    </div>
   );
 };
 

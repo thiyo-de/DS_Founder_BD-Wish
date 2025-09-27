@@ -228,19 +228,9 @@ export const Awards = () => {
           viewport={{ once: true }}
         >
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full mb-6 relative">
-            <div
-              className="absolute inset-0 rounded-full opacity-20 animate-pulse"
-              style={{ backgroundColor: colors.brandBlue }}
-            ></div>
-            <div
-              className="inline-flex items-center justify-center w-16 h-16 rounded-full"
-              style={{ backgroundColor: `${colors.brandBlue}15` }}
-            >
-              <Trophy
-                className="h-10 w-10"
-                style={{ color: colors.brandBlue }}
-              />
-            </div>
+            <Badge className="mb-4 rounded-full bg-gradient-to-r from-[#0606bc] to-[#FF6B6B] text-white px-4 py-2 text-base font-semibold shadow-md border-none whitespace-nowrap">
+              Achievements
+            </Badge>
           </div>
           <h2
             className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6"
@@ -252,9 +242,9 @@ export const Awards = () => {
             className="text-lg sm:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed"
             style={{ color: colors.darkCharcoal }}
           >
-            A testament to excellence, innovation, and positive impact. These
-            recognitions reflect not just individual achievement, but the
-            collective success of our entire organization.
+            Every award is more than a medal — it is a story of lives
+            transformed. Our Founder’s honors celebrate his vision, compassion,
+            and the countless people whose futures were shaped by his work.
           </p>
         </motion.div>
 
