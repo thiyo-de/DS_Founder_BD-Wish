@@ -421,75 +421,78 @@ export const Awards = () => {
             ))}
           </div>
 
-          {/* Inspirational Quote - Fixed Background */}
+          {/* Inspirational Quote - Responsive */}
           <motion.div
-            className="text-center mt-12 lg:mt-16"
+            className="text-center mt-8 sm:mt-12 lg:mt-16 px-3 sm:px-4"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.6 }}
             viewport={{ once: true }}
           >
-            <Card className="inline-block max-w-4xl border-0 shadow-2xl overflow-hidden backdrop-blur-sm bg-gradient-to-r from-blue-600/90 to-purple-600/90">
-              <CardContent className="p-8 lg:p-12 relative overflow-hidden">
+            <Card className="inline-block w-full max-w-[92rem] border-0 shadow-2xl overflow-hidden backdrop-blur-sm bg-gradient-to-r from-blue-600/90 to-purple-600/90 rounded-2xl sm:rounded-3xl">
+              <CardContent className="relative overflow-hidden p-4 sm:p-8 lg:p-12">
                 {/* Subtle pattern overlay */}
                 <div
-                  className="absolute inset-0 opacity-10"
+                  className="absolute inset-0 opacity-10 pointer-events-none"
                   style={{
-                    backgroundImage: `radial-gradient(circle at 25% 25%, ${colors.offWhite} 20%, transparent 50%)`,
+                    backgroundImage:
+                      "radial-gradient(circle at 25% 25%, rgba(255,255,255,0.9) 20%, transparent 50%)",
                   }}
-                ></div>
+                />
 
                 <div className="relative z-10">
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
+                    initial={{ opacity: 0, scale: 0.98 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.6, delay: 0.8 }}
                     viewport={{ once: true }}
                     className="relative"
                   >
-                    <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl p-10 lg:p-12 border border-white/20 shadow-2xl mx-4">
-                      {/* Increased spacing for decorative corners */}
-                      <div className="absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-yellow-400 rounded-tl-2xl"></div>
-                      <div className="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-yellow-400 rounded-tr-2xl"></div>
-                      <div className="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-yellow-400 rounded-bl-2xl"></div>
-                      <div className="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-yellow-400 rounded-br-2xl"></div>
+                    <div className="relative mx-auto max-w-4xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-4 sm:p-8 lg:p-12 border border-white/20 shadow-2xl">
+                      {/* Decorative corners (hide on very small screens) */}
+                      <div className="hidden xs:block absolute top-3 left-3 w-6 h-6 sm:top-4 sm:left-4 sm:w-8 sm:h-8 border-t-2 border-l-2 border-yellow-400 rounded-tl-2xl" />
+                      <div className="hidden xs:block absolute top-3 right-3 w-6 h-6 sm:top-4 sm:right-4 sm:w-8 sm:h-8 border-t-2 border-r-2 border-yellow-400 rounded-tr-2xl" />
+                      <div className="hidden xs:block absolute bottom-3 left-3 w-6 h-6 sm:bottom-4 sm:left-4 sm:w-8 sm:h-8 border-b-2 border-l-2 border-yellow-400 rounded-bl-2xl" />
+                      <div className="hidden xs:block absolute bottom-3 right-3 w-6 h-6 sm:bottom-4 sm:right-4 sm:w-8 sm:h-8 border-b-2 border-r-2 border-yellow-400 rounded-br-2xl" />
 
-                      <div className="text-center relative z-10">
-                        {/* Icon with better spacing */}
-                        <div className="mb-8">
-                          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-yellow-400/10 border border-yellow-400/20">
-                            <Quote className="h-8 w-8 text-yellow-300" />
+                      <div className="relative z-10 text-center">
+                        {/* Icon */}
+                        <div className="mb-4 sm:mb-6">
+                          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-xl sm:rounded-2xl bg-yellow-400/10 border border-yellow-400/20">
+                            {/* import { Quote } from "lucide-react" */}
+                            <Quote className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-yellow-300" />
                           </div>
                         </div>
 
-                        {/* Quote text with better typography */}
-                        <div className="max-w-3xl mx-auto">
-                          <p className="text-xl font-satoshi lg:text-2xl font-light leading-relaxed text-white mb-8 px-4">
+                        {/* Quote text */}
+                        <div className="mx-auto max-w-3xl">
+                          <p className="px-2 sm:px-4 text-[15px] sm:text-lg lg:text-2xl font-light leading-relaxed text-white/95 mb-6 sm:mb-8">
                             The best legacy we can leave is not just what we've
                             accomplished, but the inspiration and opportunities
                             we've created for others to achieve even more.
                           </p>
 
-                          {/* Attribution with better spacing */}
-                          <div className="flex items-center justify-center space-x-6">
-                            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-yellow-400/50 to-transparent"></div>
-                            <span className="text-sm font-satoshi text-yellow-200 tracking-widest px-4 whitespace-nowrap">
+                          {/* Attribution */}
+                          <div className="flex items-center justify-center gap-3 sm:gap-6">
+                            <div className="hidden sm:block flex-1 h-px bg-gradient-to-r from-transparent via-yellow-400/50 to-transparent" />
+                            <span className="text-xs sm:text-sm tracking-widest text-yellow-200 px-3 sm:px-4 whitespace-nowrap">
                               Our Founder's Vision
                             </span>
-                            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-yellow-400/50 to-transparent"></div>
+                            <div className="hidden sm:block flex-1 h-px bg-gradient-to-r from-transparent via-yellow-400/50 to-transparent" />
                           </div>
                         </div>
                       </div>
 
                       {/* Subtle background pattern */}
-                      <div className="absolute inset-0 rounded-3xl overflow-hidden opacity-10">
+                      <div className="absolute inset-0 rounded-2xl sm:rounded-3xl overflow-hidden opacity-10 pointer-events-none">
                         <div
                           className="absolute inset-0"
                           style={{
-                            backgroundImage: `radial-gradient(circle at 25% 25%, #ffffff 1px, transparent 1px)`,
-                            backgroundSize: "40px 40px",
+                            backgroundImage:
+                              "radial-gradient(circle at 25% 25%, #ffffff 1px, transparent 1px)",
+                            backgroundSize: "28px 28px", // smaller for mobile; scales acceptably on larger screens
                           }}
-                        ></div>
+                        />
                       </div>
                     </div>
                   </motion.div>
