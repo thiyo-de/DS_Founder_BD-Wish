@@ -290,3 +290,60 @@
     @apply px-4;
   }
 }
+
+/* --- Mobile hero hardening (keep at end of Hero.css) --- */
+
+/* Show only one hero per breakpoint, CSS-only guard */
+@media (max-width: 1023.98px) {
+  .slideshow-hero { display: none !important; }
+  .slideshow-hero-mobile { display: block !important; }
+}
+@media (min-width: 1024px) {
+  .slideshow-hero { display: block !important; }
+  .slideshow-hero-mobile { display: none !important; }
+}
+
+/* Local normalization so Tailwind base doesn't nudge anything */
+.slideshow-hero-mobile, 
+.slideshow-hero-mobile * {
+  box-sizing: border-box;
+}
+
+/* Kill unexpected margins from preflight on headings/paragraphs */
+.slideshow-hero-mobile h1,
+.slideshow-hero-mobile h2,
+.slideshow-hero-mobile p {
+  margin: 0;
+}
+
+/* Make sure our buttons never inherit global .btn-* */
+.slideshow-hero-mobile .mh-btn {
+  all: unset;                      /* wipe any global button rules */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px; 
+  height: 42px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.16);
+  border: 1px solid rgba(255,255,255,.22);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #fff;
+  cursor: pointer;
+  transition: transform .2s ease, background .2s ease;
+}
+.slideshow-hero-mobile .mh-btn:hover { background: rgba(255,255,255,.26); transform: scale(1.05); }
+.slideshow-hero-mobile .mh-btn.mh-play { background: #faf200; color: #000; border-color: transparent; }
+.slideshow-hero-mobile .mh-btn.mh-play:hover { background: #fff; }
+
+/* Ensure the viewer always behaves edge-to-edge */
+.slideshow-hero-mobile .mh-viewer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+}
+
+/* Keep our z-order above the page bg but below sticky headers if any */
+.slideshow-hero-mobile { z-index: 2; }

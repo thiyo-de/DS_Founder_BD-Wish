@@ -32,15 +32,10 @@ export const Header = () => {
     <motion.header
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b",
-
-        // Mobile & tablet (default): always white + blur
-        "bg-white/85 backdrop-blur-md border-border shadow-soft",
-
-        // Desktop overrides (lg+):
-        // at top: transparent; after scroll: white + blur
-        !isScrolled
-          ? "lg:bg-transparent lg:backdrop-blur-0 lg:border-b-0 lg:shadow-none"
-          : "lg:bg-white/80 lg:backdrop-blur-md lg:border-border lg:shadow-soft"
+        // At top: fully transparent
+        !isScrolled && "bg-transparent backdrop-blur-0 border-b-0 shadow-none",
+        // On scroll: white with blur
+        isScrolled && "bg-white/80 backdrop-blur-md border-border shadow-soft"
       )}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
@@ -49,7 +44,10 @@ export const Header = () => {
       <div className="container-custom py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <motion.div className="flex items-center gap-3" whileHover={{ scale: 1.02 }}>
+          <motion.div
+            className="flex items-center gap-3"
+            whileHover={{ scale: 1.02 }}
+          >
             <img
               src={Logo}
               alt="Logo"
@@ -59,7 +57,9 @@ export const Header = () => {
               <h1 className="font-satoshi font-bold text-xl text-foreground">
                 Birthday Wishes
               </h1>
-              <p className="text-sm text-muted-foreground font-space">to our Founder</p>
+              <p className="text-sm text-muted-foreground font-space">
+                to our Founder
+              </p>
             </div>
           </motion.div>
 
@@ -87,10 +87,12 @@ export const Header = () => {
               size="sm"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="focus-ring"
-              aria-label="Toggle menu"
-              aria-expanded={isMobileMenuOpen}
             >
-              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {isMobileMenuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
             </Button>
           </div>
 
@@ -101,7 +103,10 @@ export const Header = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.6 }}
           >
-            <Button onClick={() => scrollToSection("#share")} className="btn-hero focus-ring">
+            <Button
+              onClick={() => scrollToSection("#share")}
+              className="btn-hero focus-ring"
+            >
               <Sparkles className="mr-2 h-4 w-4" />
               Share Your Wish
             </Button>
@@ -124,23 +129,21 @@ export const Header = () => {
                     scrollToSection(item.href);
                     setIsMobileMenuOpen(false);
                   }}
-                  className="text-center text-foreground hover:text-primary transition-colors font-space font-medium py-3 px-2 rounded-lg focus-ring"
+                  className="text-left text-foreground hover:text-primary transition-colors font-space font-medium py-3 px-2 rounded-lg focus-ring"
                 >
                   {item.name}
                 </button>
               ))}
-
               <Button
                 onClick={() => {
                   scrollToSection("#share");
                   setIsMobileMenuOpen(false);
                 }}
-                className="btn-hero mx-10 mb-5 focus-ring"
+                className="btn-hero mt-4 focus-ring"
               >
                 <Sparkles className="mr-2 h-4 w-4" />
                 Share Your Wish
               </Button>
-
             </div>
           </motion.nav>
         )}

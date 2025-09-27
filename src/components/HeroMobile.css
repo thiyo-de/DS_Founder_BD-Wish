@@ -1,0 +1,338 @@
+/* =========================
+   HeroMobile (sm + md only)
+   ========================= */
+
+.slideshow-hero-mobile {
+  --mh-bg: #0b0f1e;
+  --mh-text: #ffffff;
+  --mh-subtle: rgba(255, 255, 255, 0.86);
+  --mh-accent: #faf200; /* brand yellow */
+  --mh-accent-weak: rgba(250, 242, 0, 0.2);
+  --mh-nav: 84px; /* sticky header height */
+
+  background: var(--mh-bg);
+  color: var(--mh-text);
+  width: 100%;
+  isolation: isolate;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+
+  /* Outer breathing room (mobile) */
+  padding: 12px 14px 18px 14px;
+}
+
+/* Top padding helper to avoid overlap with sticky header */
+.slideshow-hero-mobile.with-navbar {
+  padding-top: calc(var(--mh-nav) + env(safe-area-inset-top, 0px) + 12px);
+}
+
+/* ---------- Background ---------- */
+.slideshow-hero-mobile .mh-bg {
+  position: absolute;
+  inset: -24px;
+  background-size: cover;
+  background-position: center;
+  filter: blur(26px) saturate(110%);
+  opacity: 0.28;
+  z-index: 0;
+  transform: scale(1.06);
+  will-change: transform, filter, opacity;
+}
+.slideshow-hero-mobile .mh-bg-tint {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+      70% 50% at 50% 8%,
+      rgba(0, 0, 0, 0.26),
+      transparent 60%
+    ),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.18) 0%, rgba(0, 0, 0, 0.68) 100%);
+  z-index: 0;
+}
+
+/* ---------- Foreground layers ---------- */
+.slideshow-hero-mobile .mh-viewer,
+.slideshow-hero-mobile .mh-content,
+.slideshow-hero-mobile .mh-thumbs,
+.slideshow-hero-mobile .mh-controls,
+.slideshow-hero-mobile .mh-dots {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------- Viewer (16:9) ---------- */
+.slideshow-hero-mobile .mh-viewer {
+  width: 100%;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+  position: relative;
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.38);
+}
+.slideshow-hero-mobile .mh-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.02);
+  transition: filter 0.7s ease, transform 0.7s ease;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.slideshow-hero-mobile .mh-img.loading {
+  filter: blur(10px);
+  transform: scale(1.06);
+}
+.slideshow-hero-mobile .mh-img.loaded {
+  filter: blur(0);
+  transform: scale(1);
+}
+
+/* Gradient mask for readability */
+.slideshow-hero-mobile .mh-viewer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.08) 0%,
+    rgba(0, 0, 0, 0.62) 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Progress */
+.slideshow-hero-mobile .mh-progress {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 8px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  overflow: hidden;
+  z-index: 3;
+}
+.slideshow-hero-mobile .mh-bar {
+  height: 100%;
+  width: 0%;
+  background: var(--mh-accent);
+}
+
+/* ---------- Content ---------- */
+.slideshow-hero-mobile .mh-content {
+  padding: 14px 6px 6px 6px;
+  animation: fadeUp 0.6s ease both;
+}
+.slideshow-hero-mobile .mh-region {
+  font-size: 0.76rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(250, 242, 0, 0.92);
+  margin: 6px 0 8px 0;
+  text-shadow: 0 0 10px var(--mh-accent-weak);
+}
+.slideshow-hero-mobile .mh-title {
+  font-weight: 900;
+  font-size: clamp(1.22rem, 4.8vw, 1.65rem);
+  line-height: 1.12;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  color: #ffffff;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
+}
+.slideshow-hero-mobile .mh-desc {
+  color: var(--mh-subtle);
+  font-size: 0.97rem;
+  line-height: 1.55;
+  text-wrap: pretty;
+  margin: 0;
+}
+
+/* ---------- Thumbnails (horizontal scroll) ---------- */
+.slideshow-hero-mobile .mh-thumbs {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 8px 2px 10px 2px; /* extra bottom so scrollbar doesn't overlap cards */
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #faf200 transparent;
+  cursor: grab;
+  overscroll-behavior-x: contain;
+}
+.slideshow-hero-mobile .mh-thumbs.dragging {
+  cursor: grabbing;
+}
+.slideshow-hero-mobile .mh-thumbs::-webkit-scrollbar {
+  height: 8px;
+}
+.slideshow-hero-mobile .mh-thumbs::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+}
+
+/* Each thumb card */
+.slideshow-hero-mobile .mh-thumb {
+  position: relative;
+  flex: 0 0 140px; /* great for 10+ cards */
+  height: calc(140px * 0.75); /* 4:3 aspect */
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  scroll-snap-align: start;
+  transition: transform 0.25s ease, border-color 0.25s ease,
+    box-shadow 0.25s ease, opacity 0.25s ease;
+  opacity: 0.95;
+}
+.slideshow-hero-mobile .mh-thumb:hover {
+  transform: translateY(-2px);
+  opacity: 1;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+}
+.slideshow-hero-mobile .mh-thumb.active {
+  border-color: rgba(250, 242, 0, 0.9);
+  opacity: 1;
+  box-shadow: 0 0 0 1px rgba(250, 242, 0, 0.4), 0 12px 24px rgba(0, 0, 0, 0.35);
+}
+.slideshow-hero-mobile .mh-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+  transform: scale(1);
+  transition: transform 0.35s ease;
+}
+.slideshow-hero-mobile .mh-thumb.active img {
+  transform: scale(1.05);
+}
+
+/* Meta overlay inside thumb */
+.slideshow-hero-mobile .mh-thumb-meta {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 8px 10px 10px 10px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0));
+  display: grid;
+  gap: 2px;
+}
+.slideshow-hero-mobile .mh-thumb-region {
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.88);
+}
+.slideshow-hero-mobile .mh-thumb-title {
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  color: #fff;
+}
+
+/* ---------- Controllers ---------- */
+.slideshow-hero-mobile .mh-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 16px;
+}
+.slideshow-hero-mobile .mh-btn {
+  all: unset;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  transition: transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+}
+.slideshow-hero-mobile .mh-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+.slideshow-hero-mobile .mh-btn.mh-play {
+  background: var(--mh-accent);
+  color: #000;
+  border-color: transparent;
+  font-weight: 700;
+}
+.slideshow-hero-mobile .mh-btn.mh-play:hover {
+  background: #fff;
+  color: #000;
+}
+
+/* ---------- Dots (extra space up & down) ---------- */
+.slideshow-hero-mobile .mh-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 18px; /* space above */
+  margin-bottom: 18px; /* space below */
+}
+.slideshow-hero-mobile .mh-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  border: none;
+  cursor: pointer;
+  transition: transform 0.25s ease, background 0.25s ease;
+}
+.slideshow-hero-mobile .mh-dot.active {
+  background: var(--mh-accent);
+  transform: scale(1.25);
+  box-shadow: 0 0 10px var(--mh-accent-weak);
+}
+
+/* ---------- Animations ---------- */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Small phones ---------- */
+@media (max-width: 360px) {
+  .slideshow-hero-mobile {
+    padding: 10px 10px 14px 10px;
+  }
+  .slideshow-hero-mobile.with-navbar {
+    padding-top: calc(var(--mh-nav) + env(safe-area-inset-top, 0px) + 10px);
+  }
+  .slideshow-hero-mobile .mh-content {
+    padding: 12px 4px 6px 4px;
+  }
+  .slideshow-hero-mobile .mh-controls {
+    margin-top: 12px;
+  }
+  .slideshow-hero-mobile .mh-btn {
+    width: 38px;
+    height: 38px;
+  }
+}

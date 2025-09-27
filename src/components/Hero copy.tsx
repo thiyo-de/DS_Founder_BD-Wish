@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+  useMemo,
+} from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Play, Pause } from "lucide-react";
 import "./Hero.css";
@@ -72,7 +78,6 @@ export default function Hero({
   initialIndex = 0,
   pauseOnHover = false, // default: ALWAYS autoplay
 }: HeroProps) {
-  // Never early-return before hooks; make slides safe.
   const effectiveSlides = slides && slides.length > 0 ? slides : DEMO_SLIDES;
   const safeStart = mod(initialIndex, effectiveSlides.length);
 
@@ -101,7 +106,6 @@ export default function Hero({
   }, []);
 
   useEffect(() => {
-    // Preload
     effectiveSlides.forEach((s) => {
       const img = new Image();
       img.src = s.image;
@@ -122,7 +126,8 @@ export default function Hero({
 
   const setupTimer = useCallback(() => {
     clearTimer();
-    if (!isAutoPlaying || autoPlayMs < 1000 || effectiveSlides.length < 2) return;
+    if (!isAutoPlaying || autoPlayMs < 1000 || effectiveSlides.length < 2)
+      return;
     intervalRef.current = setInterval(() => {
       setIndex((prev) => mod(prev + 1, effectiveSlides.length));
     }, autoPlayMs);
@@ -131,7 +136,13 @@ export default function Hero({
   useEffect(() => {
     setupTimer();
     return clearTimer;
-  }, [setupTimer, clearTimer, autoPlayMs, effectiveSlides.length, isAutoPlaying]);
+  }, [
+    setupTimer,
+    clearTimer,
+    autoPlayMs,
+    effectiveSlides.length,
+    isAutoPlaying,
+  ]);
 
   /* --------- Navigation ---------- */
   const prevSlide = useCallback(() => {
@@ -217,7 +228,7 @@ export default function Hero({
       aria-label="Featured destinations carousel"
       aria-roledescription="carousel"
       aria-live="polite"
-      tabIndex={-1} /* prevents page jumping to hero on updates */
+      tabIndex={-1}
       onKeyDown={onKeyDown}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
@@ -232,7 +243,6 @@ export default function Hero({
             src={activeSlide.image}
             className={`hero-bg ${isImageLoaded ? "loaded" : "loading"}`}
             alt=""
-            /* Only fade; let CSS handle the zoom to avoid transform conflicts */
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -273,7 +283,7 @@ export default function Hero({
             {activeSlide.region}
           </motion.p>
 
-        <motion.h1
+          <motion.h1
             key={`title-${activeSlide.id}`}
             initial={{ y: 28, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -304,7 +314,9 @@ export default function Hero({
             <motion.button
               key={`${slide.id}-${originalIndex}`}
               type="button"
-              className={`horizontal-card ${originalIndex === index ? "active" : ""}`}
+              className={`horizontal-card ${
+                originalIndex === index ? "active" : ""
+              }`}
               onClick={() => goToSlide(originalIndex)}
               whileHover={{ scale: originalIndex === index ? 1 : 1.02 }}
               initial={{ opacity: 0, x: -12 }}
@@ -354,10 +366,11 @@ export default function Hero({
 
       {/* Counter */}
       <div className="hero-counter" aria-live="off">
-        {String(index + 1).padStart(2, "0")} / {String(effectiveSlides.length).padStart(2, "0")}
+        {String(index + 1).padStart(2, "0")} /{" "}
+        {String(effectiveSlides.length).padStart(2, "0")}
       </div>
 
-      {/* Mobile dots */}
+      {/* Mobile dots (kept but does not change layout) */}
       <div
         className="hero-mobile-indicators"
         role="tablist"
