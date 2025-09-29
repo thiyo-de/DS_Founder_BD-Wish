@@ -135,104 +135,82 @@ export const ShareWishPopup = ({ isOpen, onClose }: ShareWishPopupProps) => {
     setMediaReady(true);
   };
 
-const submitToSupabase = async (
-  type: "video" | "image" | "audio" | "text"
-) => {
-  if (
-    !formData.name.trim() ||
-    !isValidPhone(formData.contact) ||
-    !formData.consent
-  ) {
-    toast({
-      title: "Required fields missing",
-      description:
-        "Please enter your name, a valid contact number (digits only), and accept the consent terms.",
-      variant: "destructive",
-    });
-    return;
-  }
+  const submitToSupabase = async (
+    type: "video" | "image" | "audio" | "text"
+  ) => {
+    if (
+      !formData.name.trim() ||
+      !isValidPhone(formData.contact) ||
+      !formData.consent
+    ) {
+      toast({
+        title: "Required fields missing",
+        description:
+          "Please enter your name, a valid contact number (digits only), and accept the consent terms.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-  if (type !== "text" && !mediaReady && !formData.file_url) {
-    toast({
-      title: "Media required",
-      description: `Please record or upload your ${type} before submitting.`,
-      variant: "destructive",
-    });
-    return;
-  }
+    if (type !== "text" && !mediaReady && !formData.file_url) {
+      toast({
+        title: "Media required",
+        description: `Please record or upload your ${type} before submitting.`,
+        variant: "destructive",
+      });
+      return;
+    }
 
-  if (type === "text" && !formData.message?.trim()) {
-    toast({
-      title: "Message required",
-      description: "Please write your birthday wish.",
-      variant: "destructive",
-    });
-    return;
-  }
+    if (type === "text" && !formData.message?.trim()) {
+      toast({
+        title: "Message required",
+        description: "Please write your birthday wish.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-  setIsSubmitting(true);
-  try {
-    const submissionData = {
-      type,
-      name: formData.name.trim(),
-      message: type === "text" ? formData.message!.trim() : null,
-      city: null,
-      org: null,
-      contact: formData.contact.trim(),
-      status: "pending" as const,
-      file_url: formData.file_url || null,
-      file_type: formData.file_type || null,
-      file_size: formData.file_size || null,
-      duration: formData.duration ? Math.round(formData.duration) : null,
-      thumbnail_url: formData.thumbnail_url || null,
-    };
+    setIsSubmitting(true);
+    try {
+      const submissionData = {
+        type,
+        name: formData.name.trim(),
+        message: type === "text" ? formData.message!.trim() : null,
+        city: null,
+        org: null,
+        contact: formData.contact.trim(),
+        status: "pending" as const,
+        file_url: formData.file_url || null,
+        file_type: formData.file_type || null,
+        file_size: formData.file_size || null,
+        duration: formData.duration ? Math.round(formData.duration) : null,
+        thumbnail_url: formData.thumbnail_url || null,
+      };
 
-    const { error } = await supabase.from("submissions").insert([submissionData]);
-    if (error) throw error;
+      const { error } = await supabase
+        .from("submissions")
+        .insert([submissionData]);
+      if (error) throw error;
 
-    // 🔹 Fire-and-forget call to WhatsApp Edge Function
-    fetch(
-      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-whatsapp`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({
-          to: formData.contact,
-          name: formData.name,
-          caption:
-            formData.message ||
-            "🎉 Thanks for sharing your birthday wish!",
-          imageUrl: formData.file_url, // only works if image/video uploaded
-        }),
-      }
-    ).catch((err) =>
-      console.warn("WhatsApp send skipped/error:", err)
-    );
+      toast({
+        title: "Wish submitted successfully! 🎉",
+        description:
+          "Thank you! Your wish has been submitted and is awaiting admin approval.",
+      });
 
-    toast({
-      title: "Wish submitted successfully! 🎉",
-      description:
-        "Thank you! Your wish has been submitted and is awaiting admin approval.",
-    });
-
-    onClose();
-  } catch (error) {
-    console.error("Submission error:", error);
-    toast({
-      title: "Submission failed",
-      description:
-        error instanceof Error ? error.message : "Please try again later.",
-      variant: "destructive",
-    });
-  } finally {
-    setIsSubmitting(false);
-  }
-};
-
+      onClose();
+    } catch (error) {
+      console.error("Submission error:", error);
+      toast({
+        title: "Submission failed",
+        description:
+          error instanceof Error ? error.message : "Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleTabChange = (value: string) => {
     const v = value as "video" | "photo" | "voice" | "text";
@@ -718,7 +696,6 @@ const submitToSupabase = async (
                         </span>
                       )}
                     </Button>
-                    
                   </div>
                 </form>
               </CardContent>

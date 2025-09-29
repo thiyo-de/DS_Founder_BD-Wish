@@ -1,0 +1,51 @@
+Cool, here’s a summary of **Supabase**’s plans + limits and **Cloudinary**’s pricing tiers (as of 2025) — this gives you a reference when selecting for your app. Always double-check their websites in case they change.
+
+---
+
+## Supabase pricing & plans
+
+Source: Supabase official pricing page ([Supabase][1])
+
+| Plan           | Base Fee / Cost         | What’s Included / Limits                                                                                                                                                                                                                                                                                | Notes / Overage Pricing                                                                        |
+| -------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| **Free**       | $0 / month              | • Unlimited API requests <br> • 50,000 Monthly Active Users (MAU) <br> • 500 MB database <br> • 1 GB file storage <br> • 5 GB egress + 5 GB cached egress <br> • Shared CPU, limited resources <br> • Community support <br> • Projects paused after 1 week inactivity; limit of 2 active free projects | Good for dev, prototypes, small projects.                                                      |
+| **Pro**        | $25 / month (starting)  | • Everything in Free <br> • 100,000 MAU included <br> • 8 GB database size included <br> • 100 GB file storage included <br> • 250 GB egress + 250 GB cached egress <br> • Daily backups, 7-day log retention <br> • Email support                                                                      | If you exceed included quotas, you pay extra (for storage, egress, MAU, etc.). ([Supabase][1]) |
+| **Team**       | $599 / month (starting) | • Everything in Pro <br> • SOC2, SSO, role-level access <br> • 14-day backups, 28-day log retention <br> • Priority/email SLAs                                                                                                                                                                          | For organizations / agencies working on multiple high-use projects. ([Supabase][1])            |
+| **Enterprise** | Custom pricing          | • Everything in Team + custom needs <br> • Uptime SLAs, dedicated support, custom security, possibly BYO cloud                                                                                                                                                                                          | Contact Supabase sales for a quote. ([Supabase][1])                                            |
+
+**Overage / extra costs** to watch for:
+
+* Database storage beyond included GB (charges per GB)
+* File storage beyond limits
+* Egress (bandwidth) beyond allotted
+* Extra MAUs beyond included
+* Extra compute / scaling
+
+Also, note: in the Free tier, if your project is inactive for a week, it may get paused. ([Supabase][1])
+
+---
+
+## Cloudinary pricing & plans
+
+Source: Cloudinary’s pricing page and third-party summaries ([Cloudinary][2])
+
+| Plan / Tier             | Price         | What’s Included / Limits                                                                                                                                                      | Notes / Features                                                                                |
+| ----------------------- | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| **Free**                | $0            | • 25 GB Storage <br> • Basic image / video API functions <br> • 3 users / 1 account <br> • Basic transformations, CDNs                                                        | Great for development, small usage. Limited in transformations and bandwidth. ([Cloudinary][2]) |
+| **Plus**                | ~$99 / month  | • 225 “credits” (for storage, bandwidth, transformations) <br> • More storage and transformations than free <br> • Additional features like role-based access, better support | Useful for small to medium apps. ([Capterra][3])                                                |
+| **Advanced**            | ~$249 / month | • 600 “credits” <br> • Higher limits on storage, transformations, etc. <br> • More features around security, custom domains                                                   | For more intensive media usage. ([Capterra][3])                                                 |
+| **Enterprise (Custom)** | Custom quote  | • Unlimited / large quotas <br> • Priority support, SLAs, dedicated features                                                                                                  | For large-scale media platforms.                                                                |
+
+**How “credits” work**
+
+* Cloudinary uses a credit system. Credits are consumed by **storage**, **bandwidth (delivery)**, and **transformations** (resizing, cropping, filters) of images/videos. ([Capterra][3])
+* You need to monitor which aspect is being exhausted– sometimes transformations or bandwidth usage (from many views) eats credit fast.
+* Going over your limits usually means buying more credits or upgrading plans.
+
+---
+
+If you like, I can also get you **Supabase + Cloudinary cost estimates** for your use case (say ~1,000 users, ~500 images) so you see what your bill *might* look like. Do you want me to do that for your certificate site?
+
+[1]: https://supabase.com/pricing?utm_source=chatgpt.com "Pricing & Fees"
+[2]: https://cloudinary.com/pricing?utm_source=chatgpt.com "Cloudinary - Pricing and Plans"
+[3]: https://www.capterra.com/p/135074/Cloudinary/pricing/?utm_source=chatgpt.com "Cloudinary Pricing: A Comprehensive Guide"

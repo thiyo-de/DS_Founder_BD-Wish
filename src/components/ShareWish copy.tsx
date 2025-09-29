@@ -37,49 +37,6 @@ interface WishFormData {
   thumbnail_url?: string;
 }
 
-/* ---------------- Edge Function config + helpers ---------------- */
-const EDGE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-whatsapp`;
-const EDGE_HEADERS = {
-  "Content-Type": "application/json",
-  apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-  Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-} as const;
-
-const digitsOnly = (v: string) => (v || "").replace(/\D/g, "");
-const looksLikeImage = (t?: string) => !!t && t.startsWith("image/");
-
-const sendWhatsApp = async ({
-  to,
-  name,
-  caption,
-  imageUrl,
-}: {
-  to?: string | null;
-  name: string;
-  caption?: string | null;
-  imageUrl?: string | null;
-}) => {
-  try {
-    const phone = digitsOnly(to || "");
-    // If you don't have a verified WA number yet or no phone provided, skip silently
-    if (!EDGE_URL || !EDGE_HEADERS.Authorization || phone.length < 7) return;
-
-    await fetch(EDGE_URL, {
-      method: "POST",
-      headers: EDGE_HEADERS,
-      body: JSON.stringify({
-        to: phone,
-        name,
-        caption: caption || "🎉 Thanks for sharing your birthday wish!",
-        imageUrl: imageUrl || undefined, // optional
-      }),
-    });
-  } catch (err) {
-    console.warn("WhatsApp send skipped/error:", err);
-  }
-};
-/* ---------------------------------------------------------------- */
-
 export const ShareWish = () => {
   const { toast } = useToast();
   const { uploadFile } = useFileUpload();
@@ -168,16 +125,6 @@ export const ShareWish = () => {
         .insert([submissionData]);
       if (error) throw error;
 
-      // Fire-and-forget WhatsApp call (no UI errors shown)
-      sendWhatsApp({
-        to: formData.contact ?? "",
-        name: formData.name,
-        caption: formData.message ?? "",
-        imageUrl: looksLikeImage(formData.file_type)
-          ? formData.file_url ?? null
-          : null,
-      });
-
       toast({
         title: "Wish submitted successfully! 🎉",
         description:
@@ -207,6 +154,7 @@ export const ShareWish = () => {
   };
 
   const handleTabChange = (value: string) => {
+    // normalize and narrow type
     const v = value as "video" | "photo" | "voice" | "text";
     setActiveTab(v);
     setMediaReady(false);
