@@ -167,20 +167,3 @@ We welcome contributions!
 ## 📝 License
 
 This project is licensed under the **MIT License**.
-
----
-
-## 🙏 Acknowledgments & Contact
-
-Built with ❤️ by the **DS Team**.
-
-📧 Contact: *[[your-email@domain.com](mailto:your-email@domain.com)]*
-🌍 Live Site: [https://ds-founder-birth-day-wish.netlify.app/](https://ds-founder-birth-day-wish.netlify.app/)
-🔐 Admin Panel: [https://fantastic-narwhal-82b86b.netlify.app/](https://fantastic-narwhal-82b86b.netlify.app/)
-
-```
-
----
-
-Would you like me to also wrap this into a **Bash generator script** (so you can run `./generate-readme.sh` to recreate this README.md anytime), or do you just want to keep this as the final static `README.md` file?
-```
